@@ -66,6 +66,19 @@ app.get("/api", statusHandler);
 // Diğer route tanımlamaları
 // Not: Vercel vercel.json'da /api/(.*) -> index.js yönlendirmesi yaptığı için
 // bu route'lar hem /customers hem de /api/customers olarak erişilebilir olacaktır.
+
+// Hem kök dizin hem de /api altından erişebilmek için:
+const apiRouter = express.Router();
+apiRouter.use("/customers", customerRoutes);
+apiRouter.use("/services", serviceRoutes);
+apiRouter.use("/businesses", businessRoutes);
+apiRouter.use("/appointments", appointmentRoutes);
+apiRouter.use("/comments", commentRoutes);
+apiRouter.use("/categories", categoryRoutes);
+
+app.use("/api", apiRouter);
+
+// Aynı route'ları doğrudan kök dizine de ekliyoruz (Geriye dönük uyumluluk için)
 app.use("/customers", customerRoutes);
 app.use("/services", serviceRoutes);
 app.use("/businesses", businessRoutes);
