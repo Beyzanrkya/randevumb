@@ -1,0 +1,336 @@
+# Web Frontend Görev Dağılımı
+
+**Web Frontend Adresi:** [https://randevual-theta.vercel.app/](https://randevual-theta.vercel.app)
+
+## 1. Müşteri Üye Olma (Kayıt) Sayfası
+- **API Endpoint:** `POST /customers/register`
+- **Görev:** Müşteri kayıt işlemi için web sayfası tasarımı ve implementasyonu
+- **UI Bileşenleri:**
+  - Responsive kayıt formu (desktop ve mobile uyumlu)
+  - Ad (name) input alanı (autocomplete="name")
+  - Email input alanı (type="email", autocomplete="email")
+  - Şifre input alanı (type="password", şifre gücü göstergesi)
+  - Şifre tekrar input alanı (doğrulama için)
+  - "Kayıt Ol" butonu (primary button style)
+  - "Zaten hesabınız var mı? Giriş Yap" linki
+  - Loading spinner (kayıt işlemi sırasında)
+  - Form container (card veya centered layout)
+- **Form Validasyonu:**
+  - HTML5 form validation (required, pattern attributes)
+  - React real-time validation (onChange handlers)
+  - Email format kontrolü (regex pattern)
+  - Şifre güvenlik kuralları (min 8 karakter, büyük/küçük harf, rakam)
+  - Şifre eşleşme kontrolü
+  - Ad alanı boş olamaz kontrolü
+  - Tüm alanlar geçerli olmadan buton disabled
+  - Client-side ve server-side validation
+- **Kullanıcı Deneyimi:**
+  - Form hatalarını input altında gösterilmesi (inline validation)
+  - Başarılı kayıt sonrası success notification ve otomatik giriş sayfasına yönlendirme
+  - Hata durumlarında kullanıcı dostu mesajlar (409 Conflict: "Bu email zaten kullanılıyor")
+  - Form submission prevention (double-click koruması)
+  - Accessible form labels ve ARIA attributes
+  - Keyboard navigation desteği (Tab, Enter)
+- **Teknik Detaylar:**
+  - Framework: React
+  - Form library: React Hook Form veya Formik
+  - State management (form state, loading state, error state)
+  - Routing (kayıt sayfasından giriş sayfasına geçiş)
+  - SEO optimization (meta tags, structured data)
+  - Accessibility (WCAG 2.1 AA compliance)
+
+## 2. Müşteri Giriş Sayfası
+- **API Endpoint:** `POST /customers/login`
+- **Görev:** Müşteri giriş işlemi için web sayfası tasarımı ve implementasyonu
+- **UI Bileşenleri:**
+  - Responsive giriş formu (desktop ve mobile uyumlu)
+  - Email input alanı (type="email", autocomplete="email")
+  - Şifre input alanı (type="password", şifre göster/gizle toggle)
+  - "Giriş Yap" butonu (primary button style)
+  - "Hesabınız yok mu? Kayıt Ol" linki
+  - Loading spinner (giriş işlemi sırasında)
+  - Form container (card veya centered layout)
+- **Form Validasyonu:**
+  - HTML5 form validation (required, pattern attributes)
+  - React real-time validation (onChange handlers)
+  - Email format kontrolü (regex pattern)
+  - Şifre boş olamaz kontrolü
+  - Tüm alanlar geçerli olmadan buton disabled
+  - Client-side ve server-side validation
+- **Kullanıcı Deneyimi:**
+  - Form hatalarını input altında gösterilmesi (inline validation)
+  - Başarılı giriş sonrası token localStorage'a kaydedilir ve anasayfaya yönlendirme
+  - Hata durumlarında kullanıcı dostu mesajlar (401 Unauthorized: "Email veya şifre hatalı")
+  - Form submission prevention (double-click koruması)
+  - Accessible form labels ve ARIA attributes
+  - Keyboard navigation desteği (Tab, Enter)
+- **Teknik Detaylar:**
+  - Framework: React
+  - JWT token yönetimi (localStorage veya React Context)
+  - State management (form state, loading state, error state)
+  - Routing (giriş sonrası dashboard/anasayfaya geçiş)
+  - Auth state yönetimi (React Context veya Redux)
+  - Accessibility (WCAG 2.1 AA compliance)
+
+## 3. Profil Güncelleme Sayfası
+- **API Endpoint:** `PUT /customers/{customerId}`
+- **Görev:** Müşteri profil bilgilerini düzenleme sayfası tasarımı ve implementasyonu
+- **UI Bileşenleri:**
+  - Responsive düzenleme formu
+  - Ad (name) input alanı (mevcut değerle dolu)
+  - Email input alanı (mevcut değerle dolu, düzenlenebilir)
+  - "Kaydet" butonu (primary button, sağ üst veya form altında)
+  - "İptal" butonu (secondary button, sol üst veya form altında)
+  - Değişiklik yapıldığında "Kaydet" butonu aktif olur
+  - Unsaved changes indicator
+- **Form Validasyonu:**
+  - Email format kontrolü (real-time)
+  - Real-time validation feedback
+  - Ad alanı boş olamaz kontrolü
+  - Değişiklik yoksa "Kaydet" butonu disabled
+- **Kullanıcı Deneyimi:**
+  - Optimistic update (kaydet butonuna basıldığında UI anında güncellenir)
+  - Başarılı güncelleme sonrası success notification (toast/snackbar)
+  - Hata durumunda error mesajı ve değişiklikler geri alınır
+  - "İptal" butonuna basıldığında değişiklik kaybı için browser confirmation dialog
+  - Beforeunload event (sayfa kapatılırken uyarı)
+- **Teknik Detaylar:**
+  - Framework: React
+  - Form state management (initial values, edited values, dirty state)
+  - Form library: React Hook Form veya Formik
+  - Routing (geri dönüş, kaydetme sonrası profil sayfasına dönüş)
+  - Unsaved changes warning (React Router blocker veya beforeunload)
+  - Form persistence (localStorage, draft saving)
+
+## 4. Randevu Oluşturma Sayfası
+- **API Endpoint:** `POST /appointments`
+- **Görev:** Müşteri randevu oluşturma sayfası tasarımı ve implementasyonu
+- **UI Bileşenleri:**
+  - Responsive randevu formu (desktop ve mobile uyumlu)
+  - İşletme seçimi dropdown (businessId)
+  - Hizmet seçimi dropdown (seçilen işletmeye göre dinamik olarak dolan, serviceId)
+  - Tarih seçici (date picker, geçmiş tarihler disabled)
+  - Saat input alanı (time picker, "14:30" formatında)
+  - "Randevu Al" butonu (primary button style)
+  - Loading spinner (oluşturma işlemi sırasında)
+  - Form container (card veya centered layout)
+- **Form Validasyonu:**
+  - HTML5 form validation (required attributes)
+  - İşletme ve hizmet seçimi zorunlu
+  - Tarih alanı zorunlu ve geçmiş tarih seçilemez
+  - Saat alanı zorunlu
+  - Tüm alanlar geçerli olmadan buton disabled
+  - Client-side ve server-side validation
+- **Kullanıcı Deneyimi:**
+  - Form hatalarını input altında gösterilmesi (inline validation)
+  - Başarılı randevu sonrası success notification ve randevu listesine yönlendirme
+  - Hata durumlarında kullanıcı dostu mesajlar (409 Conflict: "Bu saatte randevu dolu")
+  - Form submission prevention (double-click koruması)
+  - Accessible form labels ve ARIA attributes
+  - Keyboard navigation desteği (Tab, Enter)
+- **Teknik Detaylar:**
+  - Framework: React
+  - Date/time picker kütüphanesi (react-datepicker veya MUI Date Picker)
+  - Dinamik hizmet listesi (işletme seçimine bağlı API çağrısı, useEffect)
+  - State management (form state, loading state, error state)
+  - Routing (başarılı randevu sonrası randevu listesine geçiş)
+  - Accessibility (WCAG 2.1 AA compliance)
+
+## 5. Randevu Listeleme Sayfası (Müşteri)
+- **API Endpoint:** `GET /appointments?customerId={customerId}`
+- **Görev:** Müşterinin kendi randevularını görüntüleme sayfası tasarımı ve implementasyonu
+- **UI Bileşenleri:**
+  - Responsive randevu listesi (desktop: tablo, mobile: card layout)
+  - Her randevu için: işletme adı, hizmet bilgisi, tarih, saat, durum (status)
+  - Her randevu için "Randevu İptal Et" butonu (danger button style)
+  - "Randevu Al" butonu (sayfanın üst kısmında, primary button)
+  - Boş durum gösterimi ("Henüz randevunuz bulunmamaktadır")
+  - Refresh butonu veya auto-refresh
+  - Breadcrumb navigation (opsiyonel)
+- **Kullanıcı Deneyimi:**
+  - Loading skeleton screen (veri yüklenirken)
+  - Empty state (randevu yoksa)
+  - Error state (yükleme hatası durumunda retry butonu)
+  - Smooth page transitions
+  - Randevu durumu için renk kodlaması (pending: sarı, confirmed: yeşil, cancelled: kırmızı)
+  - Responsive grid layout
+- **Teknik Detaylar:**
+  - useEffect ile sayfa yüklendiğinde API çağrısı
+  - State management (randevu listesi, loading, error states)
+  - Routing (randevu oluşturma sayfasına geçiş)
+  - Client-side caching (localStorage/sessionStorage)
+  - Deep linking desteği
+
+## 6. Randevu Silme Akışı
+- **API Endpoint:** `DELETE /appointments/{appointmentId}`
+- **Görev:** Müşteri randevusunu iptal etme işlemi için web UI akışı tasarımı ve implementasyonu
+- **UI Bileşenleri:**
+  - "Randevu İptal Et" butonu (randevu listesi sayfasında, danger button style)
+  - Modal dialog (destructive action için)
+  - Son onay ekranı (uyarı mesajları ile)
+  - "Emin misiniz?" confirmation dialog (çift onay mekanizması)
+  - Warning icons ve visual cues
+- **Kullanıcı Deneyimi:**
+  - Destructive action için görsel uyarılar (kırmızı renk, warning icons)
+  - Açık ve net uyarı mesajları ("Bu işlem geri alınamaz")
+  - İptal seçeneği her zaman mevcut (modal close, cancel button)
+  - Silme işlemi sırasında loading indicator
+  - Başarılı iptal sonrası liste otomatik güncellenir ve success notification gösterilir
+- **Akış Adımları:**
+  1. Randevu listesinde "Randevu İptal Et" butonuna tıklama
+  2. İlk uyarı modal dialog'u gösterilmesi
+  3. Son onay ekranı (detaylı uyarılar, checkbox confirmation)
+  4. İptal işlemi gerçekleştirme (204 No Content beklenir)
+  5. Başarılı iptal sonrası liste yenilenir ve success notification gösterilir
+- **Teknik Detaylar:**
+  - Modal/Dialog component kullanımı (React Portal veya headlessui, MUI Dialog)
+  - Multi-step flow yönetimi (state machine veya step-based)
+  - Error handling (iptal başarısız olursa)
+  - Liste state'i güncelleme (optimistic update veya yeniden fetch)
+  - Browser history management
+
+## 7. Hizmet Ekleme Sayfası
+- **API Endpoint:** `POST /services`
+- **Görev:** İşletmeye yeni hizmet ekleme sayfası tasarımı ve implementasyonu
+- **UI Bileşenleri:**
+  - Responsive hizmet ekleme formu (desktop ve mobile uyumlu)
+  - Hizmet adı (name) input alanı
+  - Fiyat (price) input alanı (type="number", pozitif sayı)
+  - Süre (duration) input alanı (type="number", dakika cinsinden)
+  - "Hizmet Ekle" butonu (primary button style)
+  - Loading spinner (ekleme işlemi sırasında)
+  - Form container (card veya centered layout)
+- **Form Validasyonu:**
+  - HTML5 form validation (required, min attributes)
+  - React real-time validation (onChange handlers)
+  - Hizmet adı boş olamaz kontrolü
+  - Fiyat ve süre sıfırdan büyük olmalı (pozitif sayı kontrolü)
+  - Tüm alanlar geçerli olmadan buton disabled
+  - Client-side ve server-side validation
+- **Kullanıcı Deneyimi:**
+  - Form hatalarını input altında gösterilmesi (inline validation)
+  - Başarılı ekleme sonrası success notification ve hizmet listesine yönlendirme
+  - Hata durumlarında kullanıcı dostu mesajlar
+  - Form submission prevention (double-click koruması)
+  - Accessible form labels ve ARIA attributes
+  - Keyboard navigation desteği (Tab, Enter)
+- **Teknik Detaylar:**
+  - Framework: React
+  - Form library: React Hook Form veya Formik
+  - State management (form state, loading state, error state)
+  - Routing (başarılı ekleme sonrası hizmet listesine geçiş)
+  - Accessibility (WCAG 2.1 AA compliance)
+
+## 8. Hizmet Listeleme Sayfası
+- **API Endpoint:** `GET /services?businessId={businessId}`
+- **Görev:** İşletmeye ait hizmetlerin listelenmesi sayfası tasarımı ve implementasyonu
+- **UI Bileşenleri:**
+  - Responsive hizmet listesi (desktop: tablo/grid, mobile: card layout)
+  - Her hizmet için: hizmet adı, fiyat, süre (dakika cinsinden)
+  - Her hizmet için "Hizmeti Düzenle" butonu (secondary button)
+  - "Hizmet Ekle" butonu (sayfanın üst kısmında, primary button)
+  - Boş durum gösterimi ("Henüz hizmet eklenmedi")
+  - Refresh butonu veya auto-refresh
+  - Breadcrumb navigation (opsiyonel)
+- **Kullanıcı Deneyimi:**
+  - Loading skeleton screen (veri yüklenirken)
+  - Empty state (hizmet yoksa)
+  - Error state (yükleme hatası durumunda retry butonu)
+  - Smooth page transitions
+  - Responsive grid layout
+- **Teknik Detaylar:**
+  - useEffect ile sayfa yüklendiğinde API çağrısı
+  - State management (hizmet listesi, loading, error states)
+  - Routing (hizmet ekleme ve düzenleme sayfalarına geçiş)
+  - Client-side caching (localStorage/sessionStorage)
+
+## 9. Hizmet Güncelleme Sayfası
+- **API Endpoint:** `PUT /services/{serviceId}`
+- **Görev:** Hizmet bilgilerini düzenleme sayfası tasarımı ve implementasyonu
+- **UI Bileşenleri:**
+  - Responsive düzenleme formu
+  - Hizmet adı (name) input alanı (mevcut değerle dolu)
+  - Fiyat (price) input alanı (mevcut değerle dolu)
+  - Süre (duration) input alanı (mevcut değerle dolu)
+  - "Kaydet" butonu (primary button, sağ üst veya form altında)
+  - "İptal" butonu (secondary button, sol üst veya form altında)
+  - Değişiklik yapıldığında "Kaydet" butonu aktif olur
+  - Unsaved changes indicator
+- **Form Validasyonu:**
+  - Real-time validation feedback (onChange handlers)
+  - Hizmet adı boş olamaz kontrolü
+  - Fiyat ve süre sıfırdan büyük olmalı
+  - Değişiklik yoksa "Kaydet" butonu disabled
+  - Sadece değişen alanlar gönderilebilir (partial update desteği)
+- **Kullanıcı Deneyimi:**
+  - Optimistic update (kaydet butonuna basıldığında UI anında güncellenir)
+  - Başarılı güncelleme sonrası success notification (toast/snackbar)
+  - Hata durumunda error mesajı ve değişiklikler geri alınır
+  - "İptal" butonuna basıldığında değişiklik kaybı için browser confirmation dialog
+  - Beforeunload event (sayfa kapatılırken uyarı)
+- **Teknik Detaylar:**
+  - Framework: React
+  - Form state management (initial values, edited values, dirty state)
+  - Form library: React Hook Form veya Formik
+  - Routing (geri dönüş, kaydetme sonrası hizmet listesine dönüş)
+  - Unsaved changes warning (React Router blocker veya beforeunload)
+  - Form persistence (localStorage, draft saving)
+  - 
+
+## 10. İşletme Kayıt Sayfası
+
+- **API Endpoint:** `POST /businesses/register`
+- **Sayfa:** `/register`
+- **Açıklama:** İşletme kayıt formu. Ad, email ve şifre ile kayıt.
+
+## 11. İşletme Giriş Sayfası
+
+- **API Endpoint:** `POST /businesses/login`
+- **Sayfa:** `/login`
+- **Açıklama:** İşletme giriş formu. Token localStorage'a kaydedilir.
+
+## 12. İşletme Oluşturma
+
+- **API Endpoint:** `POST /businesses`
+- **Sayfa:** `/register`
+- **Açıklama:** Yeni işletme oluşturma.
+
+## 13. Randevuları Listeleme
+
+- **API Endpoint:** `GET /appointments?businessId={id}`
+- **Sayfa:** `/appointments`
+- **Açıklama:** İşletmeye ait randevuları listeler.
+
+## 14. Randevu Güncelleme
+
+- **API Endpoint:** `PUT /appointments/{id}`
+- **Sayfa:** `/appointments`
+- **Açıklama:** Randevu tarih, saat ve durumunu günceller.
+
+## 15. Yorum Ekleme
+
+- **API Endpoint:** `POST /comments`
+- **Sayfa:** `/comments`
+- **Açıklama:** İşletmeye yorum ekler.
+
+## 16. Yorum Güncelleme
+
+- **API Endpoint:** `PUT /comments/{id}`
+- **Sayfa:** `/comments`
+- **Açıklama:** Yorumu günceller.
+
+## 17. Yorum Silme
+
+- **API Endpoint:** `DELETE /comments/{id}`
+- **Sayfa:** `/comments`
+- **Açıklama:** Yorumu siler.
+
+## 18. Kategori Listeleme
+
+- **API Endpoint:** `GET /categories/{id}`
+- **Sayfa:** `/categories`
+- **Açıklama:** Kategoriye ait işletmeleri listeler.
+## Grup Üyelerinin Web Frontend Görevleri
+
+1. [Beyza Nur Kaya'nın Web Frontend Görevleri](Beyza-Nur-Kaya/Beyza-Nur-Kaya-Web-Frontend-Gorevleri.md)
+2. [Melike Ünlü'nün Web Frontend Görevleri](Melike-Ünlü/Melike-Ünlü-Web-Frontend-Gorevleri.md)

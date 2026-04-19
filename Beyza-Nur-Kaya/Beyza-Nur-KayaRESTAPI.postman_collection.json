@@ -1,0 +1,316 @@
+{
+  "info": {
+    "_postman_id": "36dfc6d7-16ff-4bd1-813f-2e0bfedabdc0",
+    "name": "Beyza-Nur-KayaRESTAPI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50537861"
+  },
+  "item": [
+    {
+      "name": "1. İşletme Üye Olma",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Test İşletme\",\r\n  \"email\": \"test@isletme.com\",\r\n  \"password\": \"Test1234!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://randevual-beta.vercel.app/businesses/register",
+          "protocol": "https",
+          "host": [
+            "randevual-beta",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "businesses",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "İşletme Oluşturma",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "TOKEN_BURAYA",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Test İşletme 3\",\r\n  \"email\": \"test3@isletme.com\",\r\n  \"password\": \"Test1234!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://randevual-beta.vercel.app/businesses",
+          "protocol": "https",
+          "host": [
+            "randevual-beta",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "businesses"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "İşletme Giriş",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"test@isletme.com\",\r\n  \"password\": \"Test1234!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://randevual-beta.vercel.app/businesses/login",
+          "protocol": "https",
+          "host": [
+            "randevual-beta",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "businesses",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Randevuları Listeleme",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "TOKEN_BURAYA",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://randevual-beta.vercel.app/appointments?businessId=69d29fa9fa7dafca23d868c8",
+          "protocol": "https",
+          "host": [
+            "randevual-beta",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "appointments"
+          ],
+          "query": [
+            {
+              "key": "businessId",
+              "value": "69d29fa9fa7dafca23d868c8"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Randevuları Güncelleme",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "TOKEN_BURAYA",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"date\": \"2026-05-10\",\r\n  \"time\": \"14:00\",\r\n  \"status\": \"confirmed\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://randevual-beta.vercel.app/appointments/69d29ab241ccc83cd0d85a86",
+          "protocol": "https",
+          "host": [
+            "randevual-beta",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "appointments",
+            "69d29ab241ccc83cd0d85a86"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Comment Ekleme",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "TOKEN_BURAYA",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"businessId\": \"69c02ce47034e63dd831b9cf\",\r\n  \"text\": \"Yeni test yorum\",\r\n  \"rating\": 5\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://randevual-beta.vercel.app/comments",
+          "protocol": "https",
+          "host": [
+            "randevual-beta",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "comments"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Comment Güncelleme",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "TOKEN_BURAYA",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"text\": \"Güncellenmiş yorum\",\r\n  \"rating\": 5\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://randevual-beta.vercel.app/comments/69d2a004fa7dafca23d868cd",
+          "protocol": "https",
+          "host": [
+            "randevual-beta",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "comments",
+            "69d2a004fa7dafca23d868cd"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Comment Silme",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "TOKEN_BURAYA",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://randevual-beta.vercel.app/comments/69d2a004fa7dafca23d868cd",
+          "protocol": "https",
+          "host": [
+            "randevual-beta",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "comments",
+            "69d2a004fa7dafca23d868cd"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Kategori Listeleme",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://randevual-beta.vercel.app/categories/69d29a4441ccc83cd0d85a83",
+          "protocol": "https",
+          "host": [
+            "randevual-beta",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "categories",
+            "69d29a4441ccc83cd0d85a83"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
