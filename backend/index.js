@@ -12,6 +12,7 @@ const serviceRoutes = require("./routes/services");
 
 const app = express();
 
+// CORS Ayarları
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -20,31 +21,51 @@ app.use(cors({
 app.options("*", cors());
 app.use(express.json());
 
-// ✅ Cached connection - Vercel için şart!
+// ✅ Cached connection - Vercel Serverless yapısı için kritik
 let isConnected = false;
 
 const connectDB = async () => {
   if (isConnected) return;
-  await mongoose.connect(process.env.MONGODB_URI);
-  isConnected = true;
-  console.log("MongoDB bağlandı");
+  try {
+    // strictQuery uyarısını kapatmak için (isteğe bağlı)
+    mongoose.set('strictQuery', true); 
+    await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = true;
+    console.log("MongoDB bağlandı");
+  } catch (error) {
+    console.error("MongoDB ilk bağlantı hatası:", error);
+    throw error;
+  }
 };
 
-// ✅ Her istekten önce bağlantıyı kontrol et
+// ✅ Her istekten önce veritabanı bağlantısını sağla
 app.use(async (req, res, next) => {
   try {
     await connectDB();
     next();
   } catch (err) {
-    console.error("MongoDB bağlantı hatası:", err);
-    res.status(500).json({ message: "Veritabanı bağlantı hatası" });
+    res.status(500).json({ message: "Veritabanı bağlantı hatası", error: err.message });
   }
 });
 
-app.get("/", (req, res) => {
-  res.json({ message: "MBrandev API çalışıyor!", version: "1.0.0" });
-});
+// --- ROUTES ---
 
+// Hem "/" hem de "/api" isteklerine cevap vererek 404 hatasını önlüyoruz
+const statusHandler = (req, res) => {
+  res.json({ 
+    status: "success",
+    message: "MBrandev API çalışıyor!", 
+    version: "1.0.0",
+    database: isConnected ? "connected" : "disconnected"
+  });
+};
+
+app.get("/", statusHandler);
+app.get("/api", statusHandler);
+
+// Diğer route tanımlamaları
+// Not: Vercel vercel.json'da /api/(.*) -> index.js yönlendirmesi yaptığı için
+// bu route'lar hem /customers hem de /api/customers olarak erişilebilir olacaktır.
 app.use("/customers", customerRoutes);
 app.use("/services", serviceRoutes);
 app.use("/businesses", businessRoutes);
@@ -52,12 +73,18 @@ app.use("/appointments", appointmentRoutes);
 app.use("/comments", commentRoutes);
 app.use("/categories", categoryRoutes);
 
-// Vercel ortamında değilsek sunucuyu dinlemeye başla
-if (require.main === module || process.env.NODE_ENV === 'development') {
+// Hatalı route'lar için fallback
+app.use((req, res) => {
+  res.status(404).json({ message: "İstediğiniz sayfa bulunamadı (404)" });
+});
+
+// Vercel ortamı dışında çalışıyorsan (lokalde) sunucuyu başlat
+if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`Sunucu ${PORT} portunda çalışıyor`);
+    console.log(`Sunucu ${PORT} portunda aktif`);
   });
 }
 
+// Vercel için app nesnesini dışa aktar
 module.exports = app;
