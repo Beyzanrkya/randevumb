@@ -40,7 +40,9 @@ export default function CustomerLogin() {
       setMessage(res.data.message || "Giriş başarılı!");
       setIsError(false);
 
-      setTimeout(() => navigate("/"), 1500);
+      setTimeout(() => {
+        window.location.href = "/customer-profile";
+      }, 1500);
 
     } catch (err) {
       setMessage(err.response?.data?.message || "E-posta veya şifre hatalı");

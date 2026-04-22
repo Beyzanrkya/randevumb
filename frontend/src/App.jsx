@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import BusinessRegister from "./pages/BusinessRegister";
 import BusinessLogin from "./pages/BusinessLogin";
 import BusinessAppointments from "./pages/BusinessAppointments";
@@ -14,31 +14,64 @@ const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 function Navbar() {
   const location = useLocation();
-  const links = [
-    { to: "/", label: "Ana Sayfa" },
-    { to: "/customer-register", label: "Müşteri Kayıt" },
-    { to: "/customer-login", label: "Müşteri Giriş" },
-    { to: "/customer-profile", label: "Profilim" },
-    { to: "/customer-appointments", label: "Randevularım" },
-    { to: "/register", label: "İşletme Kayıt" },
-    { to: "/login", label: "İşletme Giriş" },
-  ];
+  const navigate = useNavigate();
+  
+  const token = localStorage.getItem("token");
+  const userType = localStorage.getItem("userType");
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("customerId");
+    localStorage.removeItem("customerName");
+    localStorage.removeItem("customerEmail");
+    localStorage.removeItem("businessId");
+    localStorage.removeItem("userType");
+    navigate("/");
+  };
+
+  let links = [{ to: "/", label: "Ana Sayfa" }];
+
+  if (!token) {
+    links.push({ to: "/customer-login", label: "Müşteri Giriş" });
+    links.push({ to: "/customer-register", label: "Müşteri Kayıt" });
+    links.push({ to: "/login", label: "İşletme Giriş" });
+    links.push({ to: "/register", label: "İşletme Kayıt" });
+  } else if (userType === "customer") {
+    links.push({ to: "/customer-profile", label: "Profilim" });
+    links.push({ to: "/customer-appointments", label: "Randevularım" });
+    links.push({ to: "/customer-new-appointment", label: "Yeni Randevu" });
+  } else if (userType === "business") {
+    links.push({ to: "/business-services", label: "Hizmetlerim" });
+    links.push({ to: "/appointments", label: "Gelen Randevular" });
+  }
+
+  links.push({ to: "/categories", label: "Kategoriler" });
+  links.push({ to: "/comments", label: "Yorumlar" });
 
   return (
     <nav style={{
       background: "#fff", borderBottom: "1px solid #e5e7eb",
-      padding: "0 32px", display: "flex", alignItems: "center",
-      height: "60px", gap: "8px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
+      padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between",
+      height: "60px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
     }}>
-      <span style={{ fontWeight: "700", fontSize: "18px", color: "#111", marginRight: "24px" }}>MBrandev</span>
-      {links.map(link => (
-        <Link key={link.to} to={link.to} style={{
-          padding: "6px 14px", borderRadius: "6px", textDecoration: "none",
-          fontSize: "14px", fontWeight: "500",
-          color: location.pathname === link.to ? "#fff" : "#555",
-          background: location.pathname === link.to ? "#111" : "transparent",
-        }}>{link.label}</Link>
-      ))}
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <span style={{ fontWeight: "700", fontSize: "18px", color: "#111", marginRight: "24px" }}>MBrandev</span>
+        {links.map(link => (
+          <Link key={link.to} to={link.to} style={{
+            padding: "6px 14px", borderRadius: "6px", textDecoration: "none",
+            fontSize: "14px", fontWeight: "500",
+            color: location.pathname === link.to ? "#fff" : "#555",
+            background: location.pathname === link.to ? "#111" : "transparent",
+          }}>{link.label}</Link>
+        ))}
+      </div>
+      {token && (
+        <button onClick={handleLogout} style={{
+          padding: "6px 14px", borderRadius: "6px", border: "1px solid #ef4444",
+          background: "transparent", color: "#ef4444", cursor: "pointer",
+          fontSize: "14px", fontWeight: "600"
+        }}>Çıkış Yap</button>
+      )}
     </nav>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -20,6 +21,7 @@ export default function BusinessLogin() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,8 +29,13 @@ export default function BusinessLogin() {
       const res = await axios.post(`${API_URL}/businesses/login`, form);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("businessId", res.data.business._id);
+      localStorage.setItem("userType", "business");
       setMessage(res.data.message);
       setIsError(false);
+      
+      setTimeout(() => {
+        window.location.href = "/appointments";
+      }, 1500);
     } catch (err) {
       setMessage(err.response?.data?.message || "Hata oluştu");
       setIsError(true);
