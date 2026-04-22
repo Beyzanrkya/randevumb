@@ -3,6 +3,16 @@ const router = express.Router();
 const Category = require("../models/Category");
 const Business = require("../models/Business");
 
+// Tüm kategorileri getirme
+router.get("/", async (req, res) => {
+  try {
+    const categories = await Category.find();
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).json({ message: "Sunucu hatası", error: error.message });
+  }
+});
+
 // GEREKSİNİM 9: KATEGORİ LİSTELEME (ID BAZLI)
 // GET /categories/:categoryId
 router.get("/:categoryId", async (req, res) => {

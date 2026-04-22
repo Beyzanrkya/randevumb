@@ -9,6 +9,7 @@ import CustomerRegister from "./pages/CustomerRegister";
 import CustomerAppointments from "./pages/CustomerAppointments";
 import CustomerCreateAppointment from "./pages/CustomerCreateAppointment";
 import CustomerProfile from "./pages/CustomerProfile";
+import CustomerDashboard from "./pages/CustomerDashboard";
 import BusinessServices from "./pages/BusinessServices";
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -77,12 +78,15 @@ function Navbar() {
 }
 
 export default function App() {
+  const userType = localStorage.getItem("userType");
+  
   return (
     <BrowserRouter>
       <Navbar />
       <div style={{ minHeight: "calc(100vh - 60px)", background: "#f9fafb" }}>
         <Routes>
           <Route path="/" element={
+            userType === "customer" ? <CustomerDashboard /> :
             <div>
               {/* Hero Section */}
               <div style={{
@@ -151,6 +155,7 @@ export default function App() {
 
           <Route path="/customer-appointments" element={<CustomerAppointments />} />
           <Route path="/customer-new-appointment" element={<CustomerCreateAppointment />} />
+          <Route path="/book/:businessId" element={<CustomerCreateAppointment />} />
           <Route path="/customer-profile" element={<CustomerProfile />} />
           <Route path="/business-services" element={<BusinessServices />} />
         </Routes>

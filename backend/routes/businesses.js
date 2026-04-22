@@ -5,6 +5,16 @@ const jwt = require("jsonwebtoken");
 const Business = require("../models/Business");
 const authMiddleware = require("../middleware/auth");
 
+// Tüm işletmeleri getirme
+router.get("/", async (req, res) => {
+  try {
+    const businesses = await Business.find().select("-password").populate("categoryId", "name");
+    res.status(200).json(businesses);
+  } catch (error) {
+    res.status(500).json({ message: "Sunucu hatası", error: error.message });
+  }
+});
+
 // GEREKSİNİM 5: İŞLETME ÜYE OLMA
 // POST /businesses/register
 router.post("/register", async (req, res) => {
