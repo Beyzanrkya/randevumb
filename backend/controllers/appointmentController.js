@@ -7,11 +7,15 @@ exports.createAppointment = async (req, res) => {
     const newAppointment = new Appointment(req.body); // Gelen verilerle nesne oluştur
     await newAppointment.save();
 
+    // İşletme bilgilerini çek (bildirim metni için)
+    const Business = require("../models/Business");
+    const business = await Business.findById(newAppointment.businessId);
+
     // Müşteriye bildirim yolla
     await new Notification({
       recipientId: newAppointment.customerId,
       recipientModel: "Customer",
-      message: `Randevunuz başarıyla oluşturuldu: ${newAppointment.date} / ${newAppointment.time}`
+      message: `${business ? business.name : "İşletme"} için randevunuz başarıyla oluşturuldu! Tarih: ${newAppointment.date} Saat: ${newAppointment.time} - Konum: ${business ? (business.address || "Belirtilmemiş") : "Belirtilmemiş"}`
     }).save();
 
     // İşletmeye bildirim yolla
