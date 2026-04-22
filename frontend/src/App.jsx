@@ -9,6 +9,7 @@ import CustomerRegister from "./pages/CustomerRegister";
 import CustomerAppointments from "./pages/CustomerAppointments";
 import CustomerCreateAppointment from "./pages/CustomerCreateAppointment";
 import CustomerProfile from "./pages/CustomerProfile";
+import BusinessProfile from "./pages/BusinessProfile";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import BusinessServices from "./pages/BusinessServices";
 const API_URL = import.meta.env.VITE_API_URL || "/api";
@@ -40,14 +41,10 @@ function Navbar() {
   } else if (userType === "customer") {
     links.push({ to: "/customer-profile", label: "Profilim" });
     links.push({ to: "/customer-appointments", label: "Randevularım" });
-    links.push({ to: "/customer-new-appointment", label: "Yeni Randevu" });
   } else if (userType === "business") {
     links.push({ to: "/business-services", label: "Hizmetlerim" });
     links.push({ to: "/appointments", label: "Gelen Randevular" });
   }
-
-  links.push({ to: "/categories", label: "Kategoriler" });
-  links.push({ to: "/comments", label: "Yorumlar" });
 
   return (
     <nav style={{
@@ -155,7 +152,7 @@ export default function App() {
 
           <Route path="/customer-appointments" element={<CustomerAppointments />} />
           <Route path="/customer-new-appointment" element={<CustomerCreateAppointment />} />
-          <Route path="/book/:businessId" element={<CustomerCreateAppointment />} />
+          <Route path="/book/:businessId" element={<BusinessProfile />} />
           <Route path="/customer-profile" element={<CustomerProfile />} />
           <Route path="/business-services" element={<BusinessServices />} />
         </Routes>

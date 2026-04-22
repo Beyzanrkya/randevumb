@@ -15,6 +15,22 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Tekil işletme getirme (Detay Sayfası için)
+router.get("/:id", async (req, res) => {
+  try {
+    const business = await Business.findById(req.params.id).select("-password").populate("categoryId", "name");
+    if (!business) {
+      return res.status(404).json({ message: "İşletme bulunamadı" });
+    }
+    res.status(200).json(business);
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).json({ message: "Geçersiz işletme ID'si" });
+    }
+    res.status(500).json({ message: "Sunucu hatası", error: error.message });
+  }
+});
+
 // GEREKSİNİM 5: İŞLETME ÜYE OLMA
 // POST /businesses/register
 router.post("/register", async (req, res) => {

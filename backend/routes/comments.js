@@ -3,6 +3,21 @@ const router = express.Router();
 const Comment = require("../models/Comment");
 const authMiddleware = require("../middleware/auth");
 
+// Yorumları listeleme (businessId ile filtreli)
+router.get("/", async (req, res) => {
+  try {
+    const { businessId } = req.query;
+    let query = {};
+    if (businessId) {
+      query.businessId = businessId;
+    }
+    const comments = await Comment.find(query).populate("customerId", "name").sort({ createdAt: -1 });
+    res.status(200).json(comments);
+  } catch (error) {
+    res.status(500).json({ message: "Sunucu hatası", error: error.message });
+  }
+});
+
 // GEREKSİNİM 2: COMMENT EKLEME
 // POST /comments
 router.post("/", authMiddleware, async (req, res) => {
