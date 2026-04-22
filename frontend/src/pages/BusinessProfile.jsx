@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
 export default function BusinessProfile() {
-  const { id } = useParams();
+  const { businessId: id } = useParams();
   const navigate = useNavigate();
 
   const [business, setBusiness] = useState(null);
