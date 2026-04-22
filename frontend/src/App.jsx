@@ -10,17 +10,18 @@ import CustomerAppointments from "./pages/CustomerAppointments";
 import CustomerCreateAppointment from "./pages/CustomerCreateAppointment";
 import CustomerProfile from "./pages/CustomerProfile";
 import BusinessServices from "./pages/BusinessServices";
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 function Navbar() {
   const location = useLocation();
   const links = [
     { to: "/", label: "Ana Sayfa" },
-    { to: "/register", label: "Kayıt" },
-    { to: "/login", label: "Giriş" },
-    { to: "/appointments", label: "Randevular" },
-    { to: "/comments", label: "Yorumlar" },
-    { to: "/categories", label: "Kategoriler" },
+    { to: "/customer-register", label: "Müşteri Kayıt" },
+    { to: "/customer-login", label: "Müşteri Giriş" },
+    { to: "/customer-profile", label: "Profilim" },
+    { to: "/customer-appointments", label: "Randevularım" },
+    { to: "/register", label: "İşletme Kayıt" },
+    { to: "/login", label: "İşletme Giriş" },
   ];
 
   return (
@@ -114,7 +115,7 @@ export default function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/customer-login" element={<CustomerLogin />} />
           <Route path="/customer-register" element={<CustomerRegister />} />
-          <Route path="/customer-register" element={<CustomerRegister />} />
+
           <Route path="/customer-appointments" element={<CustomerAppointments />} />
           <Route path="/customer-new-appointment" element={<CustomerCreateAppointment />} />
           <Route path="/customer-profile" element={<CustomerProfile />} />

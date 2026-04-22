@@ -1,15 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const customerController = require("../controllers/customerController");
+const authMiddleware = require("../middleware/auth");
 
-// API Tasarımındaki yollar:
 // POST /customers/register -> Kayıt işlemi
 router.post("/register", customerController.registerCustomer);
 
 // POST /customers/login -> Giriş işlemi
 router.post("/login", customerController.loginCustomer);
 
-// PUT /customers/:customerId -> Profil güncelleme
-router.put("/:customerId", customerController.updateProfile);
+// GET /customers/me -> Token ile kendi profilini getir
+router.get("/me", authMiddleware, customerController.getMyProfile);
+
+// PUT /customers/me -> Token ile kendi profilini güncelle
+router.put("/me", authMiddleware, customerController.updateMyProfile);
+
+// PUT /customers/:customerId -> ID ile profil güncelleme (eski uyumluluk)
+router.put("/:customerId", authMiddleware, customerController.updateProfile);
 
 module.exports = router;

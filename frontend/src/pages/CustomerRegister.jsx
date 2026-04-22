@@ -20,25 +20,27 @@ export default function CustomerRegister() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API_URL = import.meta.env.VITE_API_URL || "/api";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      // Dökümanındaki 1. Metot: POST /customers/register
       const res = await axios.post(`${API_URL}/customers/register`, form);
       
-      setMessage("Hesap başarıyla oluşturuldu! Giriş sayfasına yönlendiriliyorsunuz...");
+      setMessage(res.data.message || "Hesap başarıyla oluşturuldu! Giriş sayfasına yönlendiriliyorsunuz...");
       setIsError(false);
 
-      // Kayıttan sonra giriş yapması için login sayfasına yönlendir
       setTimeout(() => navigate("/customer-login"), 2000);
 
     } catch (err) {
       setMessage(err.response?.data?.message || "Kayıt sırasında bir hata oluştu");
       setIsError(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,7 +72,7 @@ export default function CustomerRegister() {
           style={inputStyle} 
           required
         />
-        <button type="submit" style={btnStyle}>Kayıt Ol</button>
+        <button type="submit" style={btnStyle} disabled={loading}>{loading ? "Kaydediliyor..." : "Kayıt Ol"}</button>
       </form>
 
       {message && (

@@ -4,7 +4,7 @@ import axios from "axios";
 export default function CustomerAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API_URL = import.meta.env.VITE_API_URL || "/api";
 
   // Randevuları getiren fonksiyon
   const fetchAppointments = async () => {
