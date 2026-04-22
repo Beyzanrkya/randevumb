@@ -59,8 +59,10 @@ export default function BusinessProfile() {
 
     setAppointmentLoading(true);
     try {
+      const customerId = localStorage.getItem("customerId");
       await axios.post(`${API_URL}/appointments`, {
         businessId: id,
+        customerId,
         ...appointmentForm
       }, {
         headers: { Authorization: `Bearer ${token}` }
