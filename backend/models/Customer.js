@@ -6,6 +6,8 @@ const customerSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true }, // Benzersiz email
     password: { type: String, required: true }, // Şifre
     phone: { type: String }, // Telefon numarası (Opsiyonel)
+    birthDate: { type: String }, // YYYY-MM-DD
+    profilePicture: { type: String }, // URL
     createdAt: { type: Date, default: Date.now } // Kayıt tarihi 
 });
 

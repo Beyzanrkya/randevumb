@@ -9,6 +9,7 @@ const commentRoutes = require("./routes/comments");
 const categoryRoutes = require("./routes/categories");
 const customerRoutes = require("./routes/customers");
 const serviceRoutes = require("./routes/services");
+const notificationRoutes = require("./routes/notifications");
 
 const app = express();
 
@@ -75,6 +76,7 @@ apiRouter.use("/businesses", businessRoutes);
 apiRouter.use("/appointments", appointmentRoutes);
 apiRouter.use("/comments", commentRoutes);
 apiRouter.use("/categories", categoryRoutes);
+apiRouter.use("/notifications", notificationRoutes);
 
 app.use("/api", apiRouter);
 
@@ -85,6 +87,7 @@ app.use("/businesses", businessRoutes);
 app.use("/appointments", appointmentRoutes);
 app.use("/comments", commentRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/notifications", notificationRoutes);
 
 // Hatalı route'lar için fallback
 app.use((req, res) => {

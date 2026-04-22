@@ -41,7 +41,7 @@ export default function CustomerLogin() {
       setIsError(false);
 
       setTimeout(() => {
-        window.location.href = "/customer-profile";
+        window.location.href = "/";
       }, 1500);
 
     } catch (err) {

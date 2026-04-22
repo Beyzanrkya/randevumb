@@ -1,10 +1,26 @@
 const Appointment = require("../models/Appointment");
+const Notification = require("../models/Notification");
 
 // 4. Randevu Oluşturma
 exports.createAppointment = async (req, res) => {
   try {
     const newAppointment = new Appointment(req.body); // Gelen verilerle nesne oluştur
     await newAppointment.save();
+
+    // Müşteriye bildirim yolla
+    await new Notification({
+      recipientId: newAppointment.customerId,
+      recipientModel: "Customer",
+      message: `Randevunuz başarıyla oluşturuldu: ${newAppointment.date} / ${newAppointment.time}`
+    }).save();
+
+    // İşletmeye bildirim yolla
+    await new Notification({
+      recipientId: newAppointment.businessId,
+      recipientModel: "Business",
+      message: `Yeni bir randevu aldınız: ${newAppointment.date} / ${newAppointment.time}`
+    }).save();
+
     res.status(201).json(newAppointment); // Başarılı kayıt
   } catch (err) {
     res.status(400).json({ message: "Randevu oluşturulamadı", error: err.message });

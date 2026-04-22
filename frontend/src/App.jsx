@@ -1,3 +1,5 @@
+import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import BusinessRegister from "./pages/BusinessRegister";
 import BusinessLogin from "./pages/BusinessLogin";
@@ -20,6 +22,49 @@ function Navbar() {
   
   const token = localStorage.getItem("token");
   const userType = localStorage.getItem("userType");
+
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notifRef = useRef(null);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!token) return;
+      try {
+        const res = await axios.get(`${API_URL}/notifications/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setNotifications(res.data || []);
+      } catch (error) {
+        console.error("Bildirimler alınamadı", error);
+      }
+    };
+    fetchNotifications();
+
+    const interval = setInterval(fetchNotifications, 30000); // 30 saniyede bir güncelle
+    return () => clearInterval(interval);
+  }, [token]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleReadNotification = async (id) => {
+    try {
+      await axios.put(`${API_URL}/notifications/${id}/read`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications(notifications.map(n => n._id === id ? { ...n, isRead: true } : n));
+    } catch (error) {
+      console.error("Okundu olarak işaretlenemedi", error);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -64,11 +109,62 @@ function Navbar() {
         ))}
       </div>
       {token && (
-        <button onClick={handleLogout} style={{
-          padding: "6px 14px", borderRadius: "6px", border: "1px solid #ef4444",
-          background: "transparent", color: "#ef4444", cursor: "pointer",
-          fontSize: "14px", fontWeight: "600"
-        }}>Çıkış Yap</button>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          
+          {/* Bildirim Zili */}
+          <div ref={notifRef} style={{ position: "relative" }}>
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer", position: "relative" }}
+            >
+              🔔
+              {notifications.filter(n => !n.isRead).length > 0 && (
+                <span style={{
+                  position: "absolute", top: "-5px", right: "-5px", background: "#ef4444", color: "#fff",
+                  fontSize: "10px", fontWeight: "bold", width: "16px", height: "16px",
+                  borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center"
+                }}>
+                  {notifications.filter(n => !n.isRead).length}
+                </span>
+              )}
+            </button>
+            
+            {showNotifications && (
+              <div style={{
+                position: "absolute", top: "40px", right: "0", width: "300px", background: "#fff",
+                borderRadius: "12px", boxShadow: "0 10px 40px rgba(0,0,0,0.1)", zIndex: 100,
+                border: "1px solid #e5e7eb", maxHeight: "400px", overflowY: "auto"
+              }}>
+                <h4 style={{ margin: 0, padding: "16px", borderBottom: "1px solid #e5e7eb", fontSize: "14px", fontWeight: "700" }}>Bildirimler</h4>
+                {notifications.length === 0 ? (
+                  <p style={{ padding: "16px", fontSize: "13px", color: "#6b7280", margin: 0, textAlign: "center" }}>Hiç bildiriminiz yok.</p>
+                ) : (
+                  notifications.map(n => (
+                    <div 
+                      key={n._id} 
+                      onClick={() => handleReadNotification(n._id)}
+                      style={{ 
+                        padding: "16px", borderBottom: "1px solid #f3f4f6", cursor: "pointer",
+                        background: n.isRead ? "#fff" : "#eff6ff", transition: "0.2s"
+                      }}
+                    >
+                      <p style={{ margin: 0, fontSize: "13px", color: "#111", fontWeight: n.isRead ? "500" : "700" }}>{n.message}</p>
+                      <span style={{ fontSize: "11px", color: "#6b7280", marginTop: "4px", display: "block" }}>
+                        {new Date(n.createdAt).toLocaleDateString("tr-TR")} {new Date(n.createdAt).toLocaleTimeString("tr-TR", { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          <button onClick={handleLogout} style={{
+            padding: "6px 14px", borderRadius: "6px", border: "1px solid #ef4444",
+            background: "transparent", color: "#ef4444", cursor: "pointer",
+            fontSize: "14px", fontWeight: "600"
+          }}>Çıkış Yap</button>
+        </div>
       )}
     </nav>
   );

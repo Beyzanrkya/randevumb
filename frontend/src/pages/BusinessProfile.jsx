@@ -228,6 +228,7 @@ export default function BusinessProfile() {
                 <div>
                   <label style={labelStyle}>Tarih</label>
                   <input type="date" style={inputStyle} 
+                    min={new Date().toISOString().split("T")[0]}
                     value={appointmentForm.date}
                     onChange={(e) => setAppointmentForm({...appointmentForm, date: e.target.value})} required />
                 </div>

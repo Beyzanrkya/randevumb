@@ -79,10 +79,12 @@ exports.getMyProfile = async (req, res) => {
 // API Metodu: PUT /customers/me
 exports.updateMyProfile = async (req, res) => {
     try {
-        const { name, phone } = req.body;
+        const { name, phone, birthDate, profilePicture } = req.body;
         const updateData = {};
         if (name) updateData.name = name;
         if (phone !== undefined) updateData.phone = phone;
+        if (birthDate !== undefined) updateData.birthDate = birthDate;
+        if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
 
         const updatedCustomer = await Customer.findByIdAndUpdate(
             req.user.userId,
