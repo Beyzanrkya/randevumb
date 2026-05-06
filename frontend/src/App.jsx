@@ -159,34 +159,7 @@ function Navbar({ isDarkMode, toggleDarkMode }) {
           ))}
         </div>
 
-        {/* Mobil Menü Butonu (Masaüstünde gizli) */}
-        <button 
-          className="mobile-menu-btn"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          style={{ background: "none", border: "none", fontSize: "24px", cursor: "pointer", padding: "8px" }}
-        >
-          {isMenuOpen ? "✕" : "☰"}
-        </button>
-
-        {/* Mobil Menü Overlay */}
-        {isMenuOpen && (
-          <div className="mobile-menu-overlay" onClick={() => setIsMenuOpen(false)}>
-            {links.map(link => (
-              <Link key={link.to} to={link.to} className="mobile-menu-link">
-                {link.label}
-              </Link>
-            ))}
-            {token && (
-              <button 
-                onClick={handleLogout} 
-                className="mobile-menu-link" 
-                style={{ background: "#111", color: "#fff", border: "none", width: "100%" }}
-              >
-                Çıkış Yap
-              </button>
-            )}
-          </div>
-        )}
+        </div>
       </div>
       
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
