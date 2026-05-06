@@ -187,6 +187,7 @@ function Navbar({ isDarkMode, toggleDarkMode }) {
             )}
           </div>
         )}
+      </div>
       
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
         {/* Dark Mode Toggle */}
