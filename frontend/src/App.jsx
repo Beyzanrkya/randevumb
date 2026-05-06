@@ -615,13 +615,22 @@ export default function App() {
             </form>
           </div>
         ) : (
-          <button onClick={() => setShowChat(true)} style={{
-            width: "64px", height: "64px", background: "linear-gradient(135deg, #1E2A40, #3A4D70)",
-            color: "#fff", border: "none", borderRadius: "50%",
-            cursor: "pointer", boxShadow: "0 8px 25px rgba(30, 42, 64, 0.4)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            transition: "transform 0.3s"
-          }} onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"} onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}>
+          <button 
+            id="ai-chat-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowChat(true);
+            }} 
+            style={{
+              width: "64px", height: "64px", background: "linear-gradient(135deg, #1E2A40, #3A4D70)",
+              color: "#fff", border: "none", borderRadius: "50%",
+              cursor: "pointer", boxShadow: "0 8px 25px rgba(30, 42, 64, 0.4)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "transform 0.3s"
+            }} 
+            onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"} 
+            onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
+          >
             <svg width="34" height="34" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M 13 33 L 13 18 L 20 27 L 27 18 L 27 33" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
               <path d="M 20 15 L 25 15 C 32 15 32 22 27 22 C 35 22 35 33 25 33 L 20 33 Z" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
