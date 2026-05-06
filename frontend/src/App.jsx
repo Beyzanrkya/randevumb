@@ -374,15 +374,17 @@ export default function App() {
       const res = await axios.post(`${API_URL}/ai/chat`, {
         message: chatMsg,
         history: chatHistory,
-        userType: userType // Kullanıcı tipini gönderiyoruz
+        userType: userType
       });
       
       setChatHistory([...currentHistory, { sender: "ai", text: res.data.aiResponse }]);
     } catch (error) {
-      console.error("AI Chat Error:", error);
+      console.error("AI Chat Error Details:", error.response?.data || error.message);
+      const errorMsg = error.response?.data?.aiResponse || error.response?.data?.message || "Üzgünüm, şu an sunucuyla bağlantı kuramıyorum. Lütfen daha sonra tekrar deneyin. 😊";
+      
       setChatHistory([...currentHistory, { 
         sender: "ai", 
-        text: "Üzgünüm, şu an bağlantı kuramıyorum. Lütfen daha sonra tekrar deneyin. 😊" 
+        text: errorMsg 
       }]);
     }
   };
