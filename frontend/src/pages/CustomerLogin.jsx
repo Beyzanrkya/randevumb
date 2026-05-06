@@ -48,21 +48,40 @@ export default function CustomerLogin() {
   };
 
   return (
-    <div style={{ minHeight: "calc(100vh - 60px)", display: "flex", margin: 0, padding: 0, background: "#fff", width: "100%", overflowX: "hidden" }}>
-      
-      {/* Left Side - Image (Full Height/Width of its container) */}
-      <div style={{ flex: "1 1 50%", position: "relative", minHeight: "calc(100vh - 60px)", display: "flex", flexDirection: "column", justifyContent: "center", padding: "10%" }}>
-        <img src="/ai_customer_login.png" alt="MBrandev Salon" style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", top: 0, left: 0, zIndex: 0 }} />
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(135deg, rgba(30, 42, 64, 0.3), rgba(142, 74, 93, 0.3))", zIndex: 1 }}></div>
+    <div className="auth-container">
+      {/* Sol Panel - Görsel ve Mesaj */}
+      <div className="auth-left">
+        <img src="/ai_customer_login.png" alt="MBrandev Spa" style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", top: 0, left: 0, zIndex: 0 }} />
+        <div style={{ 
+          position: "absolute", inset: 0, 
+          background: "linear-gradient(to bottom, rgba(30,42,64,0.3), rgba(30,42,64,0.7))", 
+          zIndex: 1 
+        }}></div>
         
-        <div style={{ position: "relative", zIndex: 2, color: "#1E2A40", background: "rgba(255, 255, 255, 0.85)", backdropFilter: "blur(12px)", padding: "40px", borderRadius: "32px", boxShadow: "0 20px 40px rgba(0,0,0,0.1)", display: "inline-block", maxWidth: "500px" }}>
-          <h2 style={{ fontSize: "48px", fontWeight: "800", marginBottom: "16px", lineHeight: "1.1", letterSpacing: "-1px", color: "#1E2A40" }}>Zarafetin<br/>Yeni Adresi</h2>
-          <p style={{ fontSize: "18px", color: "#4b5563", lineHeight: "1.6", fontWeight: "500", margin: 0 }}>MBrandev ile favori salonlarınızdan saniyeler içinde randevu alın, güzellik rutininizi en şık şekilde yönetin.</p>
+        <div style={{ 
+          position: "absolute", bottom: "10%", left: "10%", 
+          right: "10%", zIndex: 2, color: "#fff" 
+        }}>
+          <div style={{ 
+            background: "rgba(255,255,255,0.9)", padding: "40px", 
+            borderRadius: "24px", color: "#1E2A40", maxWidth: "450px",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+            backdropFilter: "blur(10px)"
+          }}>
+            <h1 style={{ 
+              fontSize: "48px", 
+              fontWeight: "900", margin: "0 0 16px", color: "#1E2A40", letterSpacing: "-1px" 
+            }}>Zarafetin <br />Yeni Adresi</h1>
+            <p style={{ 
+              fontSize: "18px", 
+              lineHeight: "1.6", color: "#4b5563", margin: 0, fontWeight: "500" 
+            }}>MBrandev ile favori salonlarınızdan saniyeler içinde randevu alın, güzellik rutininizi en şık şekilde yönetin.</p>
+          </div>
         </div>
       </div>
 
-      {/* Right Side - Form (Full Height/Width of its container) */}
-      <div style={{ flex: "1 1 50%", padding: "40px 8%", display: "flex", flexDirection: "column", justifyContent: "center", background: "#fff", position: "relative" }}>
+      {/* Right Side - Form */}
+      <div className="auth-right">
         
         <div style={{ width: "100%", maxWidth: "450px", margin: "0 auto" }}>
           <div style={{ marginBottom: "40px" }}>

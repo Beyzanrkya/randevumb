@@ -43,10 +43,10 @@ export default function BusinessLogin() {
   };
 
   return (
-    <div style={{ minHeight: "calc(100vh - 60px)", display: "flex", margin: 0, padding: 0, background: "#fff", width: "100%", overflowX: "hidden" }}>
+    <div className="auth-container">
       
-      {/* Left Side - Image (Full Height/Width of its container) */}
-      <div style={{ flex: "1 1 50%", position: "relative", minHeight: "calc(100vh - 60px)", display: "flex", flexDirection: "column", justifyContent: "center", padding: "10%" }}>
+      {/* Left Side - Image */}
+      <div className="auth-left">
         <img src="/ai_business_login.png" alt="MBrandev Salon" style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", top: 0, left: 0, zIndex: 0 }} />
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(135deg, rgba(30, 42, 64, 0.4), rgba(142, 74, 93, 0.6))", zIndex: 1 }}></div>
         
@@ -56,8 +56,8 @@ export default function BusinessLogin() {
         </div>
       </div>
 
-      {/* Right Side - Form (Full Height/Width of its container) */}
-      <div style={{ flex: "1 1 50%", padding: "40px 8%", display: "flex", flexDirection: "column", justifyContent: "center", background: "#fff", position: "relative" }}>
+      {/* Right Side - Form */}
+      <div className="auth-right">
         
         <div style={{ width: "100%", maxWidth: "450px", margin: "0 auto" }}>
           <div style={{ marginBottom: "40px" }}>
