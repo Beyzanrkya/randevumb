@@ -102,6 +102,7 @@ app.use("/comments", reviewRoutes); // Burayı da Reviews yapalım
 app.use("/reviews", reviewRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/notifications", notificationRoutes);
+app.use("/ai", aiRoutes);
 app.use("/loyalty", loyaltyRoutes);
 
 // Hatalı route'lar için fallback
