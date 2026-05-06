@@ -10,8 +10,17 @@ const categoryRoutes = require("./routes/categories");
 const customerRoutes = require("./routes/customers");
 const serviceRoutes = require("./routes/services");
 const notificationRoutes = require("./routes/notifications");
+const aiRoutes = require("./routes/ai");
+const reviewRoutes = require("./routes/reviews");
+const loyaltyRoutes = require("./routes/loyalty");
 
 const app = express();
+
+// Gelen her isteği terminale yazdır (Debug için)
+app.use((req, res, next) => {
+  console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
+  next();
+});
 
 // CORS Ayarları
 app.use(cors({
@@ -20,7 +29,8 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.options("*", cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // ✅ Cached connection - Vercel Serverless yapısı için kritik
 let isConnected = false;
@@ -74,20 +84,25 @@ apiRouter.use("/customers", customerRoutes);
 apiRouter.use("/services", serviceRoutes);
 apiRouter.use("/businesses", businessRoutes);
 apiRouter.use("/appointments", appointmentRoutes);
-apiRouter.use("/comments", commentRoutes);
+apiRouter.use("/comments", reviewRoutes); // Yorumları Reviews'a yönlendir
+apiRouter.use("/reviews", reviewRoutes);  // Reviews zaten doğru
 apiRouter.use("/categories", categoryRoutes);
 apiRouter.use("/notifications", notificationRoutes);
+apiRouter.use("/ai", aiRoutes);
+apiRouter.use("/loyalty", loyaltyRoutes);
 
 app.use("/api", apiRouter);
 
-// Aynı route'ları doğrudan kök dizine de ekliyoruz (Geriye dönük uyumluluk için)
+// Geriye dönük uyumluluk için doğrudan kullanımlar
 app.use("/customers", customerRoutes);
 app.use("/services", serviceRoutes);
 app.use("/businesses", businessRoutes);
 app.use("/appointments", appointmentRoutes);
-app.use("/comments", commentRoutes);
+app.use("/comments", reviewRoutes); // Burayı da Reviews yapalım
+app.use("/reviews", reviewRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/notifications", notificationRoutes);
+app.use("/loyalty", loyaltyRoutes);
 
 // Hatalı route'lar için fallback
 app.use((req, res) => {

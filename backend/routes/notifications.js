@@ -6,7 +6,7 @@ const authMiddleware = require("../middleware/auth");
 // GET /notifications/me
 router.get("/me", authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.userId || req.user.businessId; // Müşteri veya İşletme
+    const userId = req.user.ownerId || req.user.userId || req.user.businessId; // İşletme Sahibi, Müşteri veya İşletme
     const notifications = await Notification.find({ recipientId: userId }).sort({ createdAt: -1 }).limit(20);
     res.status(200).json(notifications);
   } catch (error) {

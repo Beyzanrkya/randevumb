@@ -1,8 +1,13 @@
 const Customer = require('../models/Customer');
 const jwt = require('jsonwebtoken');
+const mailer = require('../utils/mailer');
+
+// Yardımcı fonksiyon: 6 haneli kod üretme
+const generateVerificationCode = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+};
 
 // 1. GEREKSİNİM: Müşteri Üye Olma
-// API Metodu: POST /customers/register
 exports.registerCustomer = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -16,11 +21,19 @@ exports.registerCustomer = async (req, res) => {
             return res.status(409).json({ message: "Bu email zaten kullanılıyor" });
         }
 
-        const newCustomer = new Customer({ name, email, password });
+        const verificationCode = generateVerificationCode();
+        const newCustomer = new Customer({ name, email, password, verificationCode });
         await newCustomer.save();
 
+        // E-posta gönder (hatayı logla ama kayıt işlemini bozma)
+        try {
+            await mailer.sendVerificationEmail(email, verificationCode);
+        } catch (mailError) {
+            console.error("E-posta gönderilemedi:", mailError);
+        }
+
         res.status(201).json({
-            message: "Hesap başarıyla oluşturuldu",
+            message: "Hesap oluşturuldu. Lütfen e-postanıza gelen kodu doğrulayın.",
             customer: { id: newCustomer._id, name: newCustomer.name, email: newCustomer.email }
         });
     } catch (error) {
@@ -28,8 +41,31 @@ exports.registerCustomer = async (req, res) => {
     }
 };
 
+// E-posta Doğrulama İşlemi
+exports.verifyEmail = async (req, res) => {
+    try {
+        const { email, code } = req.body;
+        const customer = await Customer.findOne({ email });
+
+        if (!customer) {
+            return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+        }
+
+        if (customer.verificationCode !== code) {
+            return res.status(400).json({ message: "Geçersiz doğrulama kodu" });
+        }
+
+        customer.isVerified = true;
+        customer.verificationCode = undefined; // Kodu temizle
+        await customer.save();
+
+        res.status(200).json({ message: "E-posta başarıyla doğrulandı" });
+    } catch (error) {
+        res.status(500).json({ message: "Doğrulama hatası", error: error.message });
+    }
+};
+
 // 2. GEREKSİNİM: Müşteri Giriş
-// API Metodu: POST /customers/login
 exports.loginCustomer = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -42,6 +78,14 @@ exports.loginCustomer = async (req, res) => {
 
         if (!customer || customer.password !== password) {
             return res.status(401).json({ message: "Email veya şifre hatalı" });
+        }
+
+        if (!customer.isVerified) {
+            return res.status(403).json({ 
+                message: "Lütfen önce e-postanızı doğrulayın", 
+                needsVerification: true,
+                email: customer.email 
+            });
         }
 
         const token = jwt.sign(
@@ -97,6 +141,50 @@ exports.updateMyProfile = async (req, res) => {
         res.status(200).json({ message: "Profil güncellendi", customer: updatedCustomer });
     } catch (error) {
         res.status(400).json({ message: "Güncelleme hatası", error: error.message });
+    }
+};
+
+// --- ŞİFRE SIFIRLAMA ---
+
+// 1. Kod Gönder
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const customer = await Customer.findOne({ email });
+
+        if (!customer) {
+            return res.status(404).json({ message: "Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı." });
+        }
+
+        const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+        customer.verificationCode = resetCode; 
+        await customer.save();
+
+        await mailer.sendVerificationEmail(email, resetCode);
+
+        res.status(200).json({ message: "Şifre sıfırlama kodu e-postanıza gönderildi." });
+    } catch (error) {
+        res.status(500).json({ message: "Hata oluştu", error: error.message });
+    }
+};
+
+// 2. Şifreyi Güncelle
+exports.resetPassword = async (req, res) => {
+    try {
+        const { email, code, newPassword } = req.body;
+        const customer = await Customer.findOne({ email });
+
+        if (!customer || customer.verificationCode !== code) {
+            return res.status(400).json({ message: "Geçersiz kod veya e-posta." });
+        }
+
+        customer.password = newPassword;
+        customer.verificationCode = undefined;
+        await customer.save();
+
+        res.status(200).json({ message: "Şifreniz başarıyla güncellendi. Yeni şifrenizle giriş yapabilirsiniz." });
+    } catch (error) {
+        res.status(500).json({ message: "Şifre güncellenemedi", error: error.message });
     }
 };
 

@@ -8,6 +8,8 @@ const customerSchema = new mongoose.Schema({
     phone: { type: String }, // Telefon numarası (Opsiyonel)
     birthDate: { type: String }, // YYYY-MM-DD
     profilePicture: { type: String }, // URL
+    isVerified: { type: Boolean, default: false }, // Email doğrulama durumu
+    verificationCode: { type: String }, // 6 haneli doğrulama kodu
     createdAt: { type: Date, default: Date.now } // Kayıt tarihi 
 });
 

@@ -10,6 +10,8 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // ID standardizasyonu: Hangi isimle gelirse gelsin 'id' olarak ata
+    decoded.id = decoded.userId || decoded.ownerId || decoded.id;
     req.user = decoded;
     next();
   } catch (error) {
