@@ -260,7 +260,8 @@ export default function CustomerProfile() {
             {/* Profil Fotoğrafı Alanı */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "32px" }}>
               <div style={{
-                width: "120px", height: "120px", borderRadius: "50%", background: "#f3f4f6",
+                width: "120px", height: "120px", minWidth: "120px", minHeight: "120px",
+                borderRadius: "50%", background: "#f3f4f6",
                 marginBottom: "16px", overflow: "hidden", display: "flex", alignItems: "center",
                 justifyContent: "center", border: "4px solid #fff", boxShadow: "0 4px 14px rgba(0,0,0,0.1)"
               }}>

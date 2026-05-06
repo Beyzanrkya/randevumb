@@ -275,7 +275,8 @@ function Navbar({ isDarkMode, toggleDarkMode }) {
               <div 
                 onClick={() => navigate("/customer-profile")}
                 style={{
-                  width: "40px", height: "40px", borderRadius: "50%", background: "#f3f4f6",
+                  width: "40px", height: "40px", minWidth: "40px", minHeight: "40px",
+                  borderRadius: "50%", background: "#f3f4f6",
                   cursor: "pointer", overflow: "hidden", border: "2px solid #1E2A40",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}
