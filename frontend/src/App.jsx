@@ -146,23 +146,6 @@ function Navbar({ isDarkMode, toggleDarkMode }) {
       </Link>
 
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        {/* Masaüstü Linkleri (Mobilde gizli) */}
-        <div className="desktop-links" style={{ display: "flex", gap: "8px" }}>
-          {links.map(link => (
-            <Link key={link.to} to={link.to} style={{
-              padding: "8px 14px", borderRadius: "20px", textDecoration: "none",
-              fontSize: "13px", fontWeight: "600",
-              color: location.pathname === link.to ? "var(--text-h)" : "var(--text)",
-              background: location.pathname === link.to ? "var(--accent-bg)" : "transparent",
-              transition: "all 0.2s"
-            }}>{link.label}</Link>
-          ))}
-        </div>
-
-        </div>
-      </div>
-      
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         
         {/* Bildirim Zili ve Profil (Her zaman görünür veya masaüstü öncelikli) */}
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -206,7 +189,25 @@ function Navbar({ isDarkMode, toggleDarkMode }) {
                     border: "1px solid var(--border)", maxHeight: "400px", overflowY: "auto"
                   }}>
                     <div style={{ padding: "16px", borderBottom: "1px solid var(--border)", fontWeight: "700" }}>Bildirimler</div>
-                    {/* ... bildirim listesi ... */}
+                    {notifications.length === 0 ? (
+                      <p style={{ padding: "16px", fontSize: "13px", color: "var(--text)", margin: 0, textAlign: "center" }}>Hiç bildiriminiz yok.</p>
+                    ) : (
+                      notifications.map(n => (
+                        <div
+                          key={n._id}
+                          onClick={() => handleReadNotification(n._id)}
+                          style={{
+                            padding: "16px", borderBottom: "1px solid var(--border)", cursor: "pointer",
+                            background: n.isRead ? "transparent" : "var(--accent-bg)", transition: "0.2s"
+                          }}
+                        >
+                          <p style={{ margin: 0, fontSize: "13px", color: "var(--text-h)", fontWeight: n.isRead ? "500" : "700" }}>{n.message}</p>
+                          <span style={{ fontSize: "11px", color: "var(--text)", marginTop: "4px", display: "block" }}>
+                            {new Date(n.createdAt).toLocaleDateString("tr-TR")} {new Date(n.createdAt).toLocaleTimeString("tr-TR", { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      ))
+                    )}
                   </div>
                 )}
               </div>
@@ -229,7 +230,7 @@ function Navbar({ isDarkMode, toggleDarkMode }) {
                 </div>
               )}
 
-              {/* Çıkış Yap Butonu (Masaüstünde görünüp mobilde gizlenebilir veya kalabilir) */}
+              {/* Çıkış Yap Butonu */}
               <button 
                 onClick={handleLogout} 
                 className="desktop-links"
@@ -253,7 +254,6 @@ function Navbar({ isDarkMode, toggleDarkMode }) {
         >
           {isMenuOpen ? "✕" : "☰"}
         </button>
-      </div>
 
         {/* Mobil Menü Overlay */}
         {isMenuOpen && (
