@@ -184,11 +184,11 @@ function Navbar({ isDarkMode, toggleDarkMode }) {
 
                 {showNotifications && (
                   <div style={{
-                    position: "absolute", top: "45px", right: "0", width: "320px", background: "var(--bg)",
-                    borderRadius: "16px", boxShadow: "0 10px 40px rgba(0,0,0,0.15)", zIndex: 1000,
-                    border: "1px solid var(--border)", maxHeight: "400px", overflowY: "auto"
+                    position: "absolute", top: "45px", right: "-100px", width: "85vw", maxWidth: "320px", 
+                    background: "var(--bg)", borderRadius: "16px", boxShadow: "0 10px 40px rgba(0,0,0,0.15)", 
+                    zIndex: 1000, border: "1px solid var(--border)", maxHeight: "400px", overflowY: "auto"
                   }}>
-                    <div style={{ padding: "16px", borderBottom: "1px solid var(--border)", fontWeight: "700" }}>Bildirimler</div>
+                    <div style={{ padding: "16px", borderBottom: "1px solid var(--border)", fontWeight: "700", color: "var(--text-h)" }}>Bildirimler</div>
                     {notifications.length === 0 ? (
                       <p style={{ padding: "16px", fontSize: "13px", color: "var(--text)", margin: 0, textAlign: "center" }}>Hiç bildiriminiz yok.</p>
                     ) : (
