@@ -99,6 +99,8 @@ function Navbar({ isDarkMode, toggleDarkMode }) {
     window.location.href = "/"; // Sayfayı tamamen yenileyerek ana sayfaya dön
   };
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   let links = [{ to: "/", label: "Ana Sayfa" }];
 
   if (!token) {
@@ -118,41 +120,73 @@ function Navbar({ isDarkMode, toggleDarkMode }) {
   return (
     <nav style={{
       background: "var(--bg)", borderBottom: "1px solid var(--border)",
-      padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between",
-      height: "60px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)", position: "sticky", top: 0, zIndex: 1000
+      padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between",
+      height: "70px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)", position: "sticky", top: 0, zIndex: 1000
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginRight: "32px" }}>
-        <Link to="/" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
-          <svg width="42" height="42" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="m-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor={isDarkMode ? "#c084fc" : "#1E2A40"} />
-                <stop offset="100%" stopColor={isDarkMode ? "#a855f7" : "#3A4D70"} />
-              </linearGradient>
-              <linearGradient id="b-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#8E4A5D" />
-                <stop offset="100%" stopColor="#C28798" />
-              </linearGradient>
-            </defs>
-            <rect width="48" height="48" rx="14" fill={isDarkMode ? "#1f2028" : "#fdf2f8"} stroke={isDarkMode ? "#2e303a" : "#fce7f3"} strokeWidth="2" />
-            <path d="M 13 33 L 13 18 L 20 27 L 27 18 L 27 33" stroke="url(#m-grad)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-            <path d="M 20 15 L 25 15 C 32 15 32 22 27 22 C 35 22 35 33 25 33 L 20 33 Z" stroke="url(#b-grad)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          </svg>
-          <span style={{ fontWeight: "900", fontSize: "24px", color: "var(--text-h)", letterSpacing: "-0.5px" }}>
-            <span style={{ color: isDarkMode ? "#c084fc" : "#1E2A40" }}>M</span>
-            <span style={{ color: "#8E4A5D" }}>B</span>randev
-          </span>
-        </Link>
-        {links.map(link => (
-          <Link key={link.to} to={link.to} style={{
-            padding: "8px 16px", borderRadius: "20px", textDecoration: "none",
-            fontSize: "14px", fontWeight: "600",
-            color: location.pathname === link.to ? "var(--text-h)" : "var(--text)",
-            background: location.pathname === link.to ? "var(--accent-bg)" : "transparent",
-            transition: "all 0.2s"
-          }}>{link.label}</Link>
-        ))}
-      </div>
+      <Link to="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
+        <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="m-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={isDarkMode ? "#c084fc" : "#1E2A40"} />
+              <stop offset="100%" stopColor={isDarkMode ? "#a855f7" : "#3A4D70"} />
+            </linearGradient>
+            <linearGradient id="b-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#8E4A5D" />
+              <stop offset="100%" stopColor="#C28798" />
+            </linearGradient>
+          </defs>
+          <rect width="48" height="48" rx="14" fill={isDarkMode ? "#1f2028" : "#fdf2f8"} stroke={isDarkMode ? "#2e303a" : "#fce7f3"} strokeWidth="2" />
+          <path d="M 13 33 L 13 18 L 20 27 L 27 18 L 27 33" stroke="url(#m-grad)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          <path d="M 20 15 L 25 15 C 32 15 32 22 27 22 C 35 22 35 33 25 33 L 20 33 Z" stroke="url(#b-grad)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+        <span style={{ fontWeight: "900", fontSize: "20px", color: "var(--text-h)", letterSpacing: "-0.5px" }}>
+          <span style={{ color: isDarkMode ? "#c084fc" : "#1E2A40" }}>M</span>
+          <span style={{ color: "#8E4A5D" }}>B</span>randev
+        </span>
+      </Link>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        {/* Masaüstü Linkleri (Mobilde gizli) */}
+        <div className="desktop-links" style={{ display: "flex", gap: "8px" }}>
+          {links.map(link => (
+            <Link key={link.to} to={link.to} style={{
+              padding: "8px 14px", borderRadius: "20px", textDecoration: "none",
+              fontSize: "13px", fontWeight: "600",
+              color: location.pathname === link.to ? "var(--text-h)" : "var(--text)",
+              background: location.pathname === link.to ? "var(--accent-bg)" : "transparent",
+              transition: "all 0.2s"
+            }}>{link.label}</Link>
+          ))}
+        </div>
+
+        {/* Mobil Menü Butonu (Masaüstünde gizli) */}
+        <button 
+          className="mobile-menu-btn"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          style={{ background: "none", border: "none", fontSize: "24px", cursor: "pointer", padding: "8px" }}
+        >
+          {isMenuOpen ? "✕" : "☰"}
+        </button>
+
+        {/* Mobil Menü Overlay */}
+        {isMenuOpen && (
+          <div className="mobile-menu-overlay" onClick={() => setIsMenuOpen(false)}>
+            {links.map(link => (
+              <Link key={link.to} to={link.to} className="mobile-menu-link">
+                {link.label}
+              </Link>
+            ))}
+            {token && (
+              <button 
+                onClick={handleLogout} 
+                className="mobile-menu-link" 
+                style={{ background: "#111", color: "#fff", border: "none", width: "100%" }}
+              >
+                Çıkış Yap
+              </button>
+            )}
+          </div>
+        )}
       
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
         {/* Dark Mode Toggle */}
