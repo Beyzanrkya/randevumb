@@ -8,17 +8,19 @@
     {
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/backend/index.js"
+      "destination": "backend/index.js"
     },
     {
       "source": "/api",
-      "destination": "/backend/index.js"
+      "destination": "backend/index.js"
     },
     {
       "source": "/assets/(.*)",
@@ -26,7 +28,11 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/frontend/index.html"
+      "destination": "frontend/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "frontend/index.html"
     }
   ]
 }
