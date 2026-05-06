@@ -387,7 +387,7 @@ export default function BusinessProfile() {
             {userType === "customer" && (
               <div style={{ background: "linear-gradient(135deg, #8E4A5D 0%, #C28798 100%)", padding: "24px", borderRadius: "24px", color: "#fff", boxShadow: "0 10px 30px rgba(142,74,93,0.2)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "800" }}>Brandev Sadakat</h3>
+                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "800" }}>MBrandev Sadakat</h3>
                   <div style={{ background: "rgba(255,255,255,0.2)", padding: "4px 10px", borderRadius: "20px", fontSize: "12px", fontWeight: "700" }}>Puanlı Müşteri</div>
                 </div>
                 <div style={{ textAlign: "center", marginBottom: "20px" }}>

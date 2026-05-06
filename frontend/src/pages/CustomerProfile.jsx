@@ -358,7 +358,7 @@ export default function CustomerProfile() {
 
         {/* Sadakat Puanları Bölümü */}
         <div style={{ marginTop: "40px", borderTop: "1px solid #f3f4f6", paddingTop: "32px" }}>
-          <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#111", marginBottom: "20px" }}>Brandev Puanlarım</h3>
+          <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#111", marginBottom: "20px" }}>MBrandev Puanlarım</h3>
           {loyaltyPoints.length === 0 ? (
             <div style={{ padding: "20px", background: "#f9fafb", borderRadius: "16px", textAlign: "center", color: "#6b7280", fontSize: "14px" }}>
               Henüz puanınız bulunmuyor. Randevularınızı tamamlayarak puan kazanabilirsiniz!
