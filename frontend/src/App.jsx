@@ -398,17 +398,10 @@ export default function App() {
             userType === "customer" ? <CustomerDashboard /> :
               <div style={{ background: "#fffafb", paddingBottom: "80px", fontFamily: "'Inter', sans-serif" }}>
                 {/* Modern Hero Section with Split Layout */}
-                <div style={{
-                  background: "linear-gradient(135deg, #FAF7F8 0%, #F3EBED 100%)",
+                <div className="hero-section" style={{
                   backdropFilter: "blur(10px)",
-                  padding: "80px 5% 80px",
                   position: "relative",
                   overflow: "hidden",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                  gap: "40px"
                 }}>
                   <div style={{
                     position: "absolute", top: "-100px", left: "-50px", width: "400px", height: "400px",
@@ -419,37 +412,43 @@ export default function App() {
                     background: "radial-gradient(circle, rgba(194,135,152,0.12) 0%, rgba(255,255,255,0) 70%)", borderRadius: "50%"
                   }}></div>
 
-                  <div style={{ flex: "1 1 500px", position: "relative", zIndex: 1 }}>
+                  <div className="hero-text" style={{ position: "relative" }}>
                     <div style={{ display: "inline-block", padding: "8px 16px", background: "rgba(30,42,64,0.08)", color: "#1E2A40", borderRadius: "20px", fontWeight: "600", fontSize: "13px", marginBottom: "20px", border: "1px solid rgba(30,42,64,0.15)", letterSpacing: "1px", textTransform: "uppercase" }}>
                       ✨ İşletmenin Kolay Hali
                     </div>
-                    <h1 style={{ fontSize: "56px", fontWeight: "800", marginBottom: "20px", color: "#2C2A2B", letterSpacing: "-1px", lineHeight: "1.1" }}>
+                    <h1 style={{ 
+                      fontSize: "clamp(32px, 8vw, 56px)", 
+                      fontWeight: "800", 
+                      marginBottom: "20px", 
+                      color: "#2C2A2B", 
+                      letterSpacing: "-1px", 
+                      lineHeight: "1.1" 
+                    }}>
                       MBrandev ile <br />
                       <span style={{ background: "-webkit-linear-gradient(45deg, #8E4A5D, #C28798)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Mükemmel Randevular</span>
                     </h1>
-                    <p style={{ fontSize: "20px", color: "#686163", marginBottom: "32px", fontWeight: "400", maxWidth: "550px", lineHeight: "1.7" }}>
+                    <p className="hero-p" style={{ fontSize: "clamp(16px, 4vw, 19px)", color: "#686163", marginBottom: "32px", fontWeight: "400", maxWidth: "550px", lineHeight: "1.7" }}>
                       İşletmenizi büyütmenin ve müşterilerinizle buluşmanın en modern, şeffaf ve şık yolu. Zamandan tasarruf edin, sanatınıza odaklanın.
                     </p>
-                    <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-                      <a href="/register" style={{ padding: "16px 36px", background: "linear-gradient(135deg, #1E2A40, #3A4D70)", color: "#fff", borderRadius: "30px", textDecoration: "none", fontWeight: "600", fontSize: "16px", boxShadow: "0 8px 25px rgba(30,42,64,0.2)", transition: "all 0.3s", cursor: "pointer", letterSpacing: "0.5px" }} onMouseOver={(e) => { e.target.style.transform = "translateY(-3px)"; e.target.style.boxShadow = "0 12px 30px rgba(30,42,64,0.3)" }} onMouseOut={(e) => { e.target.style.transform = "translateY(0)"; e.target.style.boxShadow = "0 8px 25px rgba(30,42,64,0.2)" }}>
+                    <div className="hero-buttons" style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+                      <a href="/register" style={{ padding: "14px 28px", background: "linear-gradient(135deg, #1E2A40, #3A4D70)", color: "#fff", borderRadius: "30px", textDecoration: "none", fontWeight: "600", fontSize: "16px", boxShadow: "0 8px 25px rgba(30,42,64,0.2)", transition: "all 0.3s", cursor: "pointer", letterSpacing: "0.5px" }} onMouseOver={(e) => { e.target.style.transform = "translateY(-3px)"; e.target.style.boxShadow = "0 12px 30px rgba(30,42,64,0.3)" }} onMouseOut={(e) => { e.target.style.transform = "translateY(0)"; e.target.style.boxShadow = "0 8px 25px rgba(30,42,64,0.2)" }}>
                         İşletme Kaydı Oluştur →
                       </a>
-                      <a href="/customer-login" style={{ padding: "16px 36px", background: "rgba(255, 255, 255, 0.8)", backdropFilter: "blur(5px)", color: "#8E4A5D", borderRadius: "30px", textDecoration: "none", fontWeight: "600", fontSize: "16px", border: "1px solid rgba(142,74,93,0.2)", boxShadow: "0 8px 20px rgba(0,0,0,0.02)", transition: "all 0.3s", letterSpacing: "0.5px" }} onMouseOver={(e) => { e.target.style.transform = "translateY(-3px)"; e.target.style.background = "#fff" }} onMouseOut={(e) => { e.target.style.transform = "translateY(0)"; e.target.style.background = "rgba(255, 255, 255, 0.8)" }}>
+                      <a href="/customer-login" style={{ padding: "14px 28px", background: "rgba(255, 255, 255, 0.8)", backdropFilter: "blur(5px)", color: "#8E4A5D", borderRadius: "30px", textDecoration: "none", fontWeight: "600", fontSize: "16px", border: "1px solid rgba(142,74,93,0.2)", boxShadow: "0 8px 20px rgba(0,0,0,0.02)", transition: "all 0.3s", letterSpacing: "0.5px" }} onMouseOver={(e) => { e.target.style.transform = "translateY(-3px)"; e.target.style.background = "#fff" }} onMouseOut={(e) => { e.target.style.transform = "translateY(0)"; e.target.style.background = "rgba(255, 255, 255, 0.8)" }}>
                         Müşteri Olarak Başla
                       </a>
                     </div>
                   </div>
 
-                  <div style={{ flex: "1 1 400px", position: "relative", zIndex: 1, display: "flex", justifyContent: "center" }}>
-                    <div style={{ position: "relative" }}>
+                  <div className="hero-image-container" style={{ position: "relative" }}>
+                    <div style={{ position: "relative", width: "100%", maxWidth: "450px" }}>
                       <div style={{ position: "absolute", inset: "-15px", background: "linear-gradient(135deg, #F3EBED, #FAF7F8)", borderRadius: "30px", transform: "rotate(-3deg)", zIndex: -1 }}></div>
-                      <img src="/booking_lifestyle.png" alt="Müşteri Randevu" style={{ width: "100%", maxWidth: "450px", borderRadius: "24px", boxShadow: "0 20px 50px rgba(142,74,93,0.15)", objectFit: "cover", aspectRatio: "4/5" }} />
-                      {/* Floating Badge */}
-                      <div style={{ position: "absolute", bottom: "30px", left: "-20px", background: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)", padding: "12px 20px", borderRadius: "16px", boxShadow: "0 10px 30px rgba(142,74,93,0.08)", display: "flex", alignItems: "center", gap: "10px", border: "1px solid rgba(142,74,93,0.1)" }}>
-                        <div style={{ background: "#F3EBED", width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>✨</div>
+                      <img src="/booking_lifestyle.png" alt="Müşteri Randevu" style={{ width: "100%", borderRadius: "24px", boxShadow: "0 20px 50px rgba(142,74,93,0.15)", objectFit: "cover", aspectRatio: "4/5" }} />
+                      <div style={{ position: "absolute", bottom: "30px", left: "-15px", background: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)", padding: "12px 20px", borderRadius: "16px", boxShadow: "0 10px 30px rgba(142,74,93,0.08)", display: "flex", alignItems: "center", gap: "10px", border: "1px solid rgba(142,74,93,0.1)" }}>
+                        <div style={{ background: "#F3EBED", width: "38px", height: "38px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>✨</div>
                         <div>
-                          <div style={{ fontWeight: "800", color: "#2C2A2B", lineHeight: "1.2" }}>%100</div>
-                          <div style={{ fontSize: "12px", color: "#686163", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Memnuniyet</div>
+                          <div style={{ fontWeight: "800", color: "#2C2A2B", lineHeight: "1.2", fontSize: "15px" }}>%100</div>
+                          <div style={{ fontSize: "11px", color: "#686163", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Memnuniyet</div>
                         </div>
                       </div>
                     </div>
