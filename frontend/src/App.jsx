@@ -576,81 +576,8 @@ export default function App() {
         </Routes>
       </div>
 
-      {/* Floating AI Support Widget */}
-      <div style={{ position: "fixed", bottom: "30px", right: "30px", zIndex: 1000 }}>
-        {showChat ? (
-          <div style={{
-            width: window.innerWidth < 480 ? "calc(100vw - 40px)" : "350px",
-            height: window.innerWidth < 480 ? "60vh" : "450px",
-            background: "#fff", borderRadius: "20px",
-            boxShadow: "0 10px 40px rgba(30, 42, 64, 0.2)", display: "flex", flexDirection: "column",
-            overflow: "hidden", border: "1px solid #e2e8f0",
-            position: "fixed", bottom: window.innerWidth < 480 ? "90px" : "30px", right: window.innerWidth < 480 ? "20px" : "30px"
-          }}>
-            {/* Chat Header */}
-            <div style={{ background: "linear-gradient(to right, #1E2A40, #3A4D70)", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", color: "#fff" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "32px", height: "32px", background: "rgba(255,255,255,0.2)", borderRadius: "50%" }}>
-                  <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M 13 33 L 13 18 L 20 27 L 27 18 L 27 33" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                    <path d="M 20 15 L 25 15 C 32 15 32 22 27 22 C 35 22 35 33 25 33 L 20 33 Z" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                  </svg>
-                </div>
-                <div>
-                  <div style={{ fontWeight: "700", fontSize: "16px" }}>MBrandev AI</div>
-                  <div style={{ fontSize: "12px", opacity: 0.8 }}>Sizin için burada</div>
-                </div>
-              </div>
-              <button onClick={() => setShowChat(false)} style={{ background: "none", border: "none", color: "#fff", fontSize: "24px", cursor: "pointer" }}>×</button>
-            </div>
-
-            {/* Chat Body */}
-            <div style={{ flex: 1, padding: "16px", overflowY: "auto", background: "#fafafa", display: "flex", flexDirection: "column", gap: "12px" }}>
-              {chatHistory.map((msg, idx) => (
-                <div key={idx} style={{ alignSelf: msg.sender === "ai" ? "flex-start" : "flex-end", maxWidth: "80%" }}>
-                    <ChatMessage msg={msg} />
-                </div>
-              ))}
-            </div>
-
-            {/* Chat Footer */}
-            <form onSubmit={handleSendChat} style={{ padding: "16px", background: "#fff", borderTop: "1px solid #f1f5f9", display: "flex", gap: "8px" }}>
-              <input
-                type="text"
-                value={chatMsg}
-                onChange={(e) => setChatMsg(e.target.value)}
-                placeholder="Bir soru sorun..."
-                style={{ flex: 1, padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: "20px", outline: "none", fontSize: "14px" }}
-              />
-              <button type="submit" style={{ background: "#1E2A40", color: "#fff", border: "none", width: "40px", height: "40px", borderRadius: "50%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                ➤
-              </button>
-            </form>
-          </div>
-        ) : (
-          <button 
-            id="ai-chat-button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowChat(true);
-            }} 
-            style={{
-              width: "64px", height: "64px", background: "linear-gradient(135deg, #1E2A40, #3A4D70)",
-              color: "#fff", border: "none", borderRadius: "50%",
-              cursor: "pointer", boxShadow: "0 8px 25px rgba(30, 42, 64, 0.4)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "transform 0.3s"
-            }} 
-            onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"} 
-            onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
-          >
-            <svg width="34" height="34" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 13 33 L 13 18 L 20 27 L 27 18 L 27 33" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-              <path d="M 20 15 L 25 15 C 32 15 32 22 27 22 C 35 22 35 33 25 33 L 20 33 Z" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-            </svg>
-          </button>
-        )}
-      </div>
     </BrowserRouter>
+  );
+}
   );
 }
