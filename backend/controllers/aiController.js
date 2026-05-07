@@ -27,6 +27,7 @@ exports.chatWithAI = async (req, res) => {
     const appointmentsPath = userType === "customer" ? "/customer-appointments" : "/appointments";
 
     const urls = [
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
     ];
@@ -37,6 +38,29 @@ exports.chatWithAI = async (req, res) => {
       try {
         let contents = [];
         
+        // Geçmişi temizle ve düzenle (Boş mesajları ve ardışık aynı rolleri engelle)
+        if (history && history.length > 0) {
+          let lastRole = null;
+          history.forEach(h => {
+            if (h.text && h.text.trim() !== "") {
+              const currentRole = h.sender === "ai" ? "model" : "user";
+              if (currentRole !== lastRole) {
+                contents.push({
+                  role: currentRole,
+                  parts: [{ text: h.text }]
+                });
+                lastRole = currentRole;
+              }
+            }
+          });
+        }
+
+        // Eğer son mesaj user ise araya model mesajı eklemek gerekir veya birleştirmek gerekir.
+        // Ancak bizim akışımızda en son biz user olarak ekleme yapıyoruz.
+        if (contents.length > 0 && contents[contents.length - 1].role === "user") {
+           // Son mesaj user ise, yeni mesajı ona eklemek yerine sistem talimatıyla birleştiriyoruz.
+        }
+
         // Sistem Talimatı (Context)
         const systemInstruction = `
           Sen MBrandev platformunun resmi AI asistanısın. Görevin kullanıcılara yardımcı olmak ve onları yönlendirmektir.
@@ -52,22 +76,11 @@ exports.chatWithAI = async (req, res) => {
           KURALLAR:
           1. Eğer kullanıcı bir hizmet arıyorsa yukarıdaki işletmelerden uygun olanı öner.
           2. Randevu sorduysa mutlaka randevular sayfası linkini ver.
-          3. Cevapların her zaman TAM VE EKSİKSİZ cümlelerden oluşsun. Asla cümleyi yarım bırakma.
+          3. Cevapların her zaman TAM VE EKSİKSİZ cümlelerden oluşsun.
           4. Nazik ve profesyonel bir üslup kullan.
-          5. Markdown formatını (kalın yazı, linkler vb.) kullan.
-          6. Bilmediğin işletmeler hakkında uydurma bilgi verme, sadece sistemdekileri söyle.
+          5. Markdown formatını kullan.
         `;
 
-        if (history && history.length > 0) {
-          contents = history
-            .filter(h => h.text && h.text.trim() !== "")
-            .map(h => ({
-              role: h.sender === "ai" ? "model" : "user",
-              parts: [{ text: h.text }]
-            }));
-        }
-
-        // Mevcut mesajı ve sistem talimatını ekle
         contents.push({
           role: "user",
           parts: [{ text: `${systemInstruction}\n\nKullanıcı Sorusu: ${message}` }]
@@ -85,17 +98,18 @@ exports.chatWithAI = async (req, res) => {
           return res.status(200).json({ aiResponse: aiText });
         }
       } catch (err) {
-        console.error(`URL denemesi başarısız (${url}):`, err.response?.data?.error?.message || err.message);
         lastError = err;
+        console.error(`Denenen model hatası (${url}):`, err.response?.data || err.message);
       }
     }
 
     throw lastError;
 
   } catch (error) {
-    console.error("AI Chat Final Error:", error.response?.data || error.message);
+    const errorDetails = error.response?.data?.error?.message || error.message;
+    console.error("AI Chat Final Error:", errorDetails);
     res.status(500).json({ 
-      aiResponse: "Şu an cevap veremiyorum, lütfen API anahtarınızı kontrol edin veya biraz bekleyin. 😊" 
+      aiResponse: `Üzgünüm, şu an bağlantı kurulamadı. (Hata: ${errorDetails}). Lütfen API anahtarını Vercel'den kontrol edip tekrar deneyin. 😊` 
     });
   }
 };
