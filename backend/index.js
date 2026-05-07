@@ -120,3 +120,4 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Vercel için app nesnesini dışa aktar
 module.exports = app;
+// AI key configuration updated
