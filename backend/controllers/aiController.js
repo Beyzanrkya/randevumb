@@ -27,7 +27,7 @@ exports.chatWithAI = async (req, res) => {
     const appointmentsPath = userType === "customer" ? "/customer-appointments" : "/appointments";
 
     const urls = [
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`
     ];
 
     let lastError = null;
