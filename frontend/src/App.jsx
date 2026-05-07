@@ -580,9 +580,12 @@ export default function App() {
       <div style={{ position: "fixed", bottom: "30px", right: "30px", zIndex: 1000 }}>
         {showChat ? (
           <div style={{
-            width: "350px", height: "450px", background: "#fff", borderRadius: "20px",
+            width: window.innerWidth < 480 ? "calc(100vw - 40px)" : "350px",
+            height: window.innerWidth < 480 ? "60vh" : "450px",
+            background: "#fff", borderRadius: "20px",
             boxShadow: "0 10px 40px rgba(30, 42, 64, 0.2)", display: "flex", flexDirection: "column",
-            overflow: "hidden", border: "1px solid #e2e8f0"
+            overflow: "hidden", border: "1px solid #e2e8f0",
+            position: "fixed", bottom: window.innerWidth < 480 ? "90px" : "30px", right: window.innerWidth < 480 ? "20px" : "30px"
           }}>
             {/* Chat Header */}
             <div style={{ background: "linear-gradient(to right, #1E2A40, #3A4D70)", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", color: "#fff" }}>
