@@ -259,3 +259,45 @@ code {
     margin: 0 auto 32px !important;
   }
 }
+
+/* Desktop Navigation Styles */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-right: 24px;
+}
+
+.desktop-nav-link {
+  text-decoration: none;
+  color: var(--text-h);
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.desktop-nav-link:after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+
+.desktop-nav-link:hover {
+  color: var(--accent);
+}
+
+.desktop-nav-link:hover:after {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none !important;
+  }
+}

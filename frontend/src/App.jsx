@@ -147,6 +147,15 @@ function Navbar({ isDarkMode, toggleDarkMode }) {
 
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         
+        {/* Masaüstü Navigasyon Linkleri */}
+        <div className="desktop-nav">
+          {links.map(link => (
+            <Link key={link.to} to={link.to} className="desktop-nav-link">
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
         {/* Bildirim Zili ve Profil (Her zaman görünür veya masaüstü öncelikli) */}
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           
