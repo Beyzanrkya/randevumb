@@ -107,6 +107,59 @@ exports.loginCustomer = async (req, res) => {
     }
 };
 
+// 2b. GEREKSİNİM: Google ile Giriş/Kayıt
+exports.googleLogin = async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({ message: "Token bilgisi alınamadı" });
+        }
+
+        // Google Token Doğrulama (SDK olmadan alternatif yöntem)
+        const googleRes = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`);
+        const { email, name, picture, sub: googleId } = googleRes.data;
+
+        if (!email) {
+            return res.status(400).json({ message: "Google'dan e-posta bilgisi alınamadı" });
+        }
+
+        // Kullanıcıyı bul veya oluştur
+        let customer = await Customer.findOne({ email });
+
+        if (!customer) {
+            // Yeni kullanıcı oluştur
+            customer = new Customer({
+                name: name,
+                email: email,
+                password: Math.random().toString(36).slice(-10),
+                isVerified: true,
+                profilePicture: picture
+            });
+            await customer.save();
+        }
+
+        // Token üret
+        const jwtToken = jwt.sign(
+            { userId: customer._id, email: customer.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        res.status(200).json({
+            message: "Google ile giriş başarılı",
+            token: jwtToken,
+            customerId: customer._id,
+            name: customer.name,
+            email: customer.email
+        });
+
+    } catch (error) {
+        console.error("Google Auth Error:", error.response?.data || error.message);
+        res.status(500).json({ message: "Google doğrulaması başarısız", error: error.message });
+    }
+};
+
 // 3a. GEREKSİNİM: Kendi Profilini Getir (Token ile)
 // API Metodu: GET /customers/me
 exports.getMyProfile = async (req, res) => {
@@ -192,10 +245,12 @@ exports.resetPassword = async (req, res) => {
 // API Metodu: PUT /customers/:customerId
 exports.updateProfile = async (req, res) => {
     try {
-        const { name, phone } = req.body;
+        const { name, phone, birthDate, profilePicture } = req.body;
         const updateData = {};
         if (name) updateData.name = name;
         if (phone !== undefined) updateData.phone = phone;
+        if (birthDate !== undefined) updateData.birthDate = birthDate;
+        if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
 
         const updatedCustomer = await Customer.findByIdAndUpdate(
             req.params.customerId,

@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # Backend Servisi
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - redis
+      - rabbitmq
+
+  # Frontend (Web) Servisi
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  # Redis (Hocanızın istediği Önbellekleme sistemi)
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # RabbitMQ (Hocanızın istediği Mesaj Kuyruğu sistemi)
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672" # RabbitMQ Panel arayüzü

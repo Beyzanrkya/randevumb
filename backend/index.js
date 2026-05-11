@@ -13,6 +13,7 @@ const notificationRoutes = require("./routes/notifications");
 const aiRoutes = require("./routes/ai");
 const reviewRoutes = require("./routes/reviews");
 const loyaltyRoutes = require("./routes/loyalty");
+const campaignRoutes = require("./routes/campaigns");
 
 const app = express();
 
@@ -90,6 +91,7 @@ apiRouter.use("/categories", categoryRoutes);
 apiRouter.use("/notifications", notificationRoutes);
 apiRouter.use("/ai", aiRoutes);
 apiRouter.use("/loyalty", loyaltyRoutes);
+apiRouter.use("/campaigns", campaignRoutes);
 
 app.use("/api", apiRouter);
 
@@ -100,6 +102,7 @@ app.use("/businesses", businessRoutes);
 app.use("/appointments", appointmentRoutes);
 app.use("/comments", reviewRoutes); // Burayı da Reviews yapalım
 app.use("/reviews", reviewRoutes);
+app.use("/campaigns", campaignRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/notifications", notificationRoutes);
 app.use("/ai", aiRoutes);

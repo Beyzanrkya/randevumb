@@ -277,7 +277,7 @@ export default function BusinessSettings() {
             
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "10px" }}>
               <div style={{
-                width: "150px", height: "150px", borderRadius: "24px",
+                width: "200px", height: "200px", borderRadius: "24px",
                 background: formData.imageUrl ? `url(${formData.imageUrl}) center/cover` : "rgba(142, 74, 93, 0.1)",
                 border: formData.imageUrl ? "none" : `2px dashed ${theme.secondary}`,
                 display: "flex", alignItems: "center", justifyContent: "center",

@@ -10,8 +10,8 @@ router.post("/", authMiddleware, async (req, res) => {
     const { businessId, appointmentId, rating, comment } = req.body;
     const rawCustomerId = req.user.userId || req.body.customerId;
 
-    if (!businessId || !appointmentId || !rating || !comment) {
-      return res.status(400).json({ message: "Eksik veri gönderildi" });
+    if (!businessId || !rating || !comment) {
+      return res.status(400).json({ message: "Eksik veri gönderildi (İşletme, Puan ve Yorum zorunludur)" });
     }
 
     const newReview = new Review({

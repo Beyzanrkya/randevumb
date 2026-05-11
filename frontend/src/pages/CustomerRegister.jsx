@@ -11,6 +11,14 @@ export default function CustomerRegister() {
 
   const API_URL = import.meta.env.VITE_API_URL || "/api";
 
+  const handleSocialLogin = (platform) => {
+    setMessage(`${platform} ile kayıt şu an aktif değil. Çok yakında hizmetinizde olacak!`);
+    setIsError(true);
+    setTimeout(() => {
+      setMessage("");
+    }, 3000);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -116,7 +124,13 @@ export default function CustomerRegister() {
 
           {/* Social Login Buttons */}
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <button type="button" style={{ width: "100%", padding: "14px", borderRadius: "14px", border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: "15px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", transition: "all 0.2s" }} onMouseOver={(e) => e.currentTarget.style.background = "#f9fafb"} onMouseOut={(e) => e.currentTarget.style.background = "#fff"}>
+            <button 
+              type="button" 
+              onClick={() => handleSocialLogin("Google")}
+              style={{ width: "100%", padding: "14px", borderRadius: "14px", border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: "15px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", transition: "all 0.2s" }} 
+              onMouseOver={(e) => e.currentTarget.style.background = "#f9fafb"} 
+              onMouseOut={(e) => e.currentTarget.style.background = "#fff"}
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -126,7 +140,13 @@ export default function CustomerRegister() {
               Google ile Kayıt Ol
             </button>
 
-            <button type="button" style={{ width: "100%", padding: "14px", borderRadius: "14px", border: "1px solid #1E2A40", background: "#1E2A40", color: "#fff", fontSize: "15px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", transition: "all 0.2s" }} onMouseOver={(e) => e.currentTarget.style.opacity = "0.85"} onMouseOut={(e) => e.currentTarget.style.opacity = "1"}>
+            <button 
+              type="button" 
+              onClick={() => handleSocialLogin("Apple")}
+              style={{ width: "100%", padding: "14px", borderRadius: "14px", border: "1px solid #1E2A40", background: "#1E2A40", color: "#fff", fontSize: "15px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", transition: "all 0.2s" }} 
+              onMouseOver={(e) => e.currentTarget.style.opacity = "0.85"} 
+              onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.05 13.91C17.07 10.63 19.8 9 19.92 8.93C18.23 6.45 15.55 6.06 14.63 5.96C12.59 5.75 10.6 7.16 9.55 7.16C8.5 7.16 6.84 5.96 5.16 5.99C3.12 6.02 1.25 7.18 0.22 8.98C-1.89 12.65 0.72 18.06 2.76 21C3.76 22.44 4.92 24 6.49 23.97C8.01 23.94 8.6 23.01 10.42 23.01C12.24 23.01 12.78 23.97 14.35 23.94C15.96 23.91 16.96 22.5 17.96 21.03C19.11 19.34 19.59 17.7 19.64 17.61C19.59 17.59 17.03 16.63 17.05 13.91Z" />
                 <path d="M13.68 3.97C14.52 2.96 15.08 1.58 14.93 0.2C13.75 0.25 12.28 0.99 11.41 1.99C10.64 2.89 9.97 4.31 10.16 5.66C11.48 5.76 12.83 4.98 13.68 3.97Z" />

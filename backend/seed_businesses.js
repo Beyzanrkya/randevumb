@@ -1,65 +1,63 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-require('dotenv').config({ path: './backend/.env' });
+const Business = require('./models/Business');
+require('dotenv').config();
 
-const BusinessOwner = require('./backend/models/BusinessOwner');
-const Business = require('./backend/models/Business');
+const testOwnerId = "663cedb9c9f7530d8c83d838"; 
 
-const businessesData = [
-  { name: "Yıldız Güzellik Salonu", email: "yildiz@mbrandev.com" },
-  { name: "Modern Berber", email: "berber@mbrandev.com" },
-  { name: "Sağlık Diş Kliniği", email: "dis@mbrandev.com" },
-  { name: "Dost Patiler Veteriner", email: "veteriner@mbrandev.com" },
-  { name: "Zihin Psikoloji", email: "psikoloji@mbrandev.com" },
-  { name: "Form Pilates", email: "pilates@mbrandev.com" },
-  { name: "Huzur Spa & Masaj", email: "spa@mbrandev.com" },
-  { name: "Lazer Estetik Merkezi", email: "estetik@mbrandev.com" },
-  { name: "Fit Yaşam Diyetisyen", email: "diyet@mbrandev.com" },
-  { name: "Zen Yoga Stüdyosu", email: "yoga@mbrandev.com" }
-];
+async function seedBusinesses() {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log("DB Bağlandı...");
 
-const seed = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("MongoDB connected for seeding...");
+        // Mevcutları temizleyelim (isteğe bağlı ama temizlik iyidir)
+        // await Business.deleteMany({ ownerId: testOwnerId });
 
-    const passwordHash = await bcrypt.hash("sifre123", 10);
+        const businesses = [
+            {
+                ownerId: testOwnerId,
+                name: "MBrandev Güzellik Merkezi",
+                category: "Güzellik & Bakım",
+                email: "nisantasi@mbrandev.com",
+                phone: "0212 222 33 44",
+                address: "Nişantaşı, İstanbul",
+                description: "Profesyonel cilt bakımı ve güzellik hizmetleri.",
+                imageUrl: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800",
+                averageRating: 4.9,
+                reviewCount: 124
+            },
+            {
+                ownerId: testOwnerId,
+                name: "MBrandev VIP Barber",
+                category: "Güzellik & Bakım",
+                email: "besiktas@mbrandev.com",
+                phone: "0212 555 66 77",
+                address: "Beşiktaş, İstanbul",
+                description: "Erkekler için özel saç kesim ve sakal tasarımı.",
+                imageUrl: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800",
+                averageRating: 4.8,
+                reviewCount: 89
+            },
+            {
+                ownerId: testOwnerId,
+                name: "MBrandev Spa & Wellness",
+                category: "Sağlık & Diyet",
+                email: "kadikoy@mbrandev.com",
+                phone: "0216 333 44 55",
+                address: "Kadıköy, İstanbul",
+                description: "Huzur dolu bir atmosferde masaj ve terapi keyfi.",
+                imageUrl: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
+                averageRating: 5.0,
+                reviewCount: 56
+            }
+        ];
 
-    for (const item of businessesData) {
-      // Check if owner already exists
-      let owner = await BusinessOwner.findOne({ email: item.email });
-
-      if (!owner) {
-        owner = await BusinessOwner.create({
-          name: item.name + " Sahibi",
-          email: item.email,
-          password: passwordHash
-        });
-        console.log(`Created owner: ${item.email}`);
-      }
-
-      // Check if business already exists
-      let business = await Business.findOne({ email: item.email });
-      if (!business) {
-        await Business.create({
-          ownerId: owner._id,
-          name: item.name,
-          email: item.email,
-          phone: "0555 555 55 55",
-          address: "İstanbul/Türkiye",
-          description: `${item.name} olarak kaliteli hizmet vermekteyiz.`,
-          imageUrl: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500"
-        });
-        console.log(`Created business: ${item.name}`);
-      }
+        await Business.insertMany(businesses);
+        console.log("3 İşletme başarıyla eklendi! ✅");
+        process.exit();
+    } catch (err) {
+        console.error(err);
+        process.exit(1);
     }
+}
 
-    console.log("Seeding completed successfully!");
-    process.exit(0);
-  } catch (error) {
-    console.error("Seeding error:", error);
-    process.exit(1);
-  }
-};
-
-seed();
+seedBusinesses();

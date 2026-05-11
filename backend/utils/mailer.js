@@ -83,8 +83,8 @@ exports.sendAppointmentEmail = async (email, details) => {
     case 'status_update':
       subject = `Randevunuz Hakkında Güncelleme: ${details.statusText}`;
       title = `Randevu Durumu: ${details.statusText}`;
-      message = `Sayın <b>${details.customerName}</b>, <b>${details.businessName}</b> işletmesindeki <b>${details.date}</b> tarihli randevunuz <b>${details.statusText}</b> olarak güncellendi.`;
-      color = details.status === 'confirmed' ? '#16a34a' : '#ef4444';
+      message = `Sayın <b>${details.customerName}</b>, <b>${details.businessName}</b> işletmesindeki <b>${details.date}</b> tarihli randevunuz <b>${details.statusText}</b> olarak güncellendi.${details.extraMessage ? `<br><br>${details.extraMessage}` : ''}`;
+      color = details.status === 'confirmed' ? '#16a34a' : (details.status === 'completed' ? '#8E4A5D' : '#ef4444');
       break;
   }
 
