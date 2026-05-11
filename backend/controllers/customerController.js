@@ -1,5 +1,6 @@
 const Customer = require('../models/Customer');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 const mailer = require('../utils/mailer');
 
 // Yardımcı fonksiyon: 6 haneli kod üretme
