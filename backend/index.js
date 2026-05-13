@@ -14,13 +14,13 @@ const aiRoutes = require("./routes/ai");
 const reviewRoutes = require("./routes/reviews");
 const loyaltyRoutes = require("./routes/loyalty");
 const campaignRoutes = require("./routes/campaigns");
-const { connectRedis, connectRabbitMQ } = require("./utils/infrastructure");
+const infrastructure = require("./utils/infrastructure");
 
 const app = express();
 
 // Redis ve RabbitMQ'yu başlat
-connectRedis();
-connectRabbitMQ();
+infrastructure.connectRedis();
+infrastructure.connectRabbitMQ();
 
 // Gelen her isteği terminale yazdır
 app.use((req, res, next) => {

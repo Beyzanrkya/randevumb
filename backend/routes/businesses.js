@@ -7,7 +7,7 @@ const Business = require("../models/Business");
 const BusinessOwner = require("../models/BusinessOwner");
 const authMiddleware = require("../middleware/auth");
 const mailer = require("../utils/mailer");
-const { redisClient } = require("../utils/infrastructure");
+const infrastructure = require("../utils/infrastructure");
 
 // Yardımcı fonksiyon: 6 haneli kod üretme
 const generateVerificationCode = () => {
@@ -18,8 +18,8 @@ const generateVerificationCode = () => {
 router.get("/", async (req, res) => {
   try {
     // 1. Önce Redis kontrolü
-    if (redisClient) {
-      const cached = await redisClient.get("all_businesses");
+    if (infrastructure.redisClient) {
+      const cached = await infrastructure.redisClient.get("all_businesses");
       if (cached) {
         console.log("⚡ [Redis] İşletme listesi hafızadan servis edildi");
         return res.status(200).json(JSON.parse(cached));
@@ -30,8 +30,8 @@ router.get("/", async (req, res) => {
     const businesses = await Business.find().populate("categoryId", "name");
     
     // 3. Bir sonraki sefer için Redis'e kaydet (1 saatlik TTL)
-    if (redisClient) {
-      await redisClient.setEx("all_businesses", 3600, JSON.stringify(businesses));
+    if (infrastructure.redisClient) {
+      await infrastructure.redisClient.setEx("all_businesses", 3600, JSON.stringify(businesses));
       console.log("💾 [DB] İşletmeler veritabanından çekildi ve Redis'e yazıldı");
     }
 

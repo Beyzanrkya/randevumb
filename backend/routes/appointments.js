@@ -9,7 +9,7 @@ const Customer = require("../models/Customer");
 const Loyalty = require("../models/Loyalty");
 const BusinessOwner = require("../models/BusinessOwner");
 const mailer = require("../utils/mailer");
-const { amqpChannel } = require("../utils/infrastructure");
+const infrastructure = require("../utils/infrastructure");
 
 // --- TÜM RANDEVULARI LİSTELEME (TEST İÇİN HERKESE AÇIK) ---
 router.get("/", async (req, res) => {
@@ -207,15 +207,15 @@ router.put("/:id", async (req, res) => {
         console.log(`📢 Giden Bildirim Mesajı: ${message}`);
 
         // --- RABBITMQ İLE BİLDİRİMİ KUYRUĞA AT ---
-        if (amqpChannel) {
+        if (infrastructure.amqpChannel) {
           const notificationData = {
             recipientId: appointment.customerId,
             recipientModel: "Customer",
             message: message
           };
           
-          amqpChannel.assertQueue("notifications_queue", { durable: true });
-          amqpChannel.sendToQueue("notifications_queue", Buffer.from(JSON.stringify(notificationData)));
+          infrastructure.amqpChannel.assertQueue("notifications_queue", { durable: true });
+          infrastructure.amqpChannel.sendToQueue("notifications_queue", Buffer.from(JSON.stringify(notificationData)));
         } else {
           await new Notification({
             recipientId: appointment.customerId,
