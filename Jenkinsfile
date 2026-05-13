@@ -18,9 +18,8 @@ pipeline {
         stage('Build and Deploy') {
             steps {
                 echo '🏗️ Docker Compose ile sistem inşa ediliyor...'
-                // Mevcut konteynerları durdur ve yenilerini en güncel kodla ayağa kaldır
-                sh 'docker compose down'
-                sh 'docker compose up -d --build'
+                // Sadece uygulamayı ve bağımlılıklarını yönetiyoruz, jenkins'e dokunmuyoruz
+                sh 'docker compose up -d --build backend frontend mongodb redis rabbitmq'
             }
         }
 
