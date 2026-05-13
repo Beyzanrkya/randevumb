@@ -41,14 +41,33 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 // ✅ Cached connection - Vercel Serverless yapısı için kritik
 let isConnected = false;
 
+const Category = require("./models/Category");
+
+const seedCategories = async () => {
+  const count = await Category.countDocuments();
+  if (count === 0) {
+    const categories = [
+      { name: "Berber", description: "Erkek saç kesimi ve sakal bakımı" },
+      { name: "Güzellik Merkezi", description: "Cilt bakımı ve estetik hizmetleri" },
+      { name: "Kuaför", description: "Kadın saç tasarım ve bakım" },
+      { name: "Diş Hekimi", description: "Ağız ve diş sağlığı hizmetleri" },
+      { name: "Diyetisyen", description: "Beslenme ve diyet danışmanlığı" },
+      { name: "Psikolog", description: "Ruh sağlığı ve danışmanlık" },
+      { name: "Spor Salonu", description: "Fitness ve spor aktiviteleri" }
+    ];
+    await Category.insertMany(categories);
+    console.log("🌱 Temel kategoriler veritabanına eklendi");
+  }
+};
+
 const connectDB = async () => {
   if (isConnected) return;
   try {
-    // strictQuery uyarısını kapatmak için (isteğe bağlı)
     mongoose.set('strictQuery', true); 
     await mongoose.connect(process.env.MONGODB_URI);
     isConnected = true;
     console.log("MongoDB bağlandı");
+    await seedCategories();
   } catch (error) {
     console.error("MongoDB ilk bağlantı hatası:", error);
     throw error;
