@@ -31,6 +31,35 @@ export default function BusinessProfile() {
   const [editingReview, setEditingReview] = useState(null);
   const [editForm, setEditForm] = useState({ rating: 5, comment: "" });
 
+  // Yeni Yorum State'leri
+  const [newReviewForm, setNewReviewForm] = useState({ rating: 5, comment: "" });
+  const [reviewLoading, setReviewLoading] = useState(false);
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!token || userType !== "customer") {
+      alert("Yorum yapmak için müşteri girişi yapmalısınız.");
+      return;
+    }
+    setReviewLoading(true);
+    try {
+      const res = await axios.post(`${API_URL}/reviews`, {
+        businessId: id,
+        rating: newReviewForm.rating,
+        comment: newReviewForm.comment
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setReviews([res.data.review, ...reviews]);
+      setNewReviewForm({ rating: 5, comment: "" });
+      alert("Yorumunuz başarıyla eklendi!");
+    } catch (err) {
+      alert("Yorum gönderilemedi: " + (err.response?.data?.message || err.message));
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
   const handleUpdateReview = async (reviewId) => {
     try {
       const res = await axios.put(`${API_URL}/reviews/${reviewId}`, editForm, {
@@ -279,6 +308,56 @@ export default function BusinessProfile() {
             {/* Yorumlar Bölümü */}
             <div style={{ background: "#fff", padding: "32px", borderRadius: "24px", boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
               <h2 style={{ fontSize: "20px", fontWeight: "800", marginBottom: "20px", color: "#111" }}>Yorumlar ve Değerlendirmeler</h2>
+
+              {/* Yeni Yorum Yapma Kutusu */}
+              {userType === "customer" && (
+                <div style={{ background: "#f9fafb", padding: "24px", borderRadius: "20px", marginBottom: "32px", border: "1px solid #e5e7eb" }}>
+                  <h3 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "16px", color: "#8E4A5D" }}>Deneyiminizi Paylaşın</h3>
+                  <form onSubmit={handleSubmitReview}>
+                    <div style={{ marginBottom: "16px", display: "flex", alignItems: "center", gap: "12px" }}>
+                      <span style={{ fontSize: "14px", fontWeight: "600" }}>Puanınız:</span>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        {[1, 2, 3, 4, 5].map(num => (
+                          <button
+                            key={num}
+                            type="button"
+                            onClick={() => setNewReviewForm({ ...newReviewForm, rating: num })}
+                            style={{
+                              background: newReviewForm.rating >= num ? "#d97706" : "#e5e7eb",
+                              color: "#fff", border: "none", width: "32px", height: "32px",
+                              borderRadius: "8px", cursor: "pointer", transition: "0.2s"
+                            }}
+                          >
+                            ⭐
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <textarea
+                      placeholder="Hizmet hakkında ne düşünüyorsunuz?..."
+                      value={newReviewForm.comment}
+                      onChange={(e) => setNewReviewForm({ ...newReviewForm, comment: e.target.value })}
+                      required
+                      style={{
+                        width: "100%", padding: "16px", borderRadius: "14px", border: "1px solid #ddd",
+                        minHeight: "100px", marginBottom: "16px", boxSizing: "border-box",
+                        fontFamily: "inherit", fontSize: "14px", outline: "none"
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      disabled={reviewLoading}
+                      style={{
+                        padding: "12px 24px", background: "#8E4A5D", color: "#fff",
+                        border: "none", borderRadius: "12px", fontWeight: "700", cursor: "pointer",
+                        boxShadow: "0 4px 12px rgba(142,74,93,0.2)"
+                      }}
+                    >
+                      {reviewLoading ? "Gönderiliyor..." : "Yorumu Gönder"}
+                    </button>
+                  </form>
+                </div>
+              )}
 
               <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 {reviews.length === 0 ? (
