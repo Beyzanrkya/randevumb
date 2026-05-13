@@ -40,7 +40,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/mbrandev
+      - MONGODB_URI=mongodb://mongodb:27017/mbrandev
       - JWT_SECRET=mb_gizli_anahtar_2024
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://rabbitmq:5672
