@@ -23,7 +23,7 @@ export default function MyAppointments() {
       setLoading(true);
       setErrorMsg(null);
       const response = await api.get('/appointments');
-      
+
       // Tüm randevuları çekiyoruz, frontend'de Ahmet'in olanları ve diğerlerini ayırabiliriz
       const data = Array.isArray(response.data) ? response.data : [];
       setAppointments(data);
@@ -77,7 +77,7 @@ export default function MyAppointments() {
           {appointments.map((item: any) => {
             const status = getStatusInfo(item.status);
             const isAhmet = item.customerId?._id === testCustomerId || item.customerId === testCustomerId;
-            
+
             return (
               <View key={item._id} style={[styles.appointmentCard, isAhmet && styles.ahmetCard]}>
                 <View style={styles.cardHeader}>

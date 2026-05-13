@@ -14,10 +14,15 @@ const aiRoutes = require("./routes/ai");
 const reviewRoutes = require("./routes/reviews");
 const loyaltyRoutes = require("./routes/loyalty");
 const campaignRoutes = require("./routes/campaigns");
+const { connectRedis, connectRabbitMQ } = require("./utils/infrastructure");
 
 const app = express();
 
-// Gelen her isteği terminale yazdır (Debug için)
+// Redis ve RabbitMQ'yu başlat
+connectRedis();
+connectRabbitMQ();
+
+// Gelen her isteği terminale yazdır
 app.use((req, res, next) => {
   console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
   next();
@@ -60,6 +65,10 @@ app.use(async (req, res, next) => {
   }
 });
 
+// ACİL DURUM: Bildirim rotasını en tepeye, her şeyden önceye çekiyoruz
+app.use("/api/notifications", notificationRoutes);
+app.use("/notifications", notificationRoutes);
+
 // --- ROUTES ---
 
 // Hem "/" hem de "/api" isteklerine cevap vererek 404 hatasını önlüyoruz
@@ -93,6 +102,8 @@ apiRouter.use("/ai", aiRoutes);
 apiRouter.use("/loyalty", loyaltyRoutes);
 apiRouter.use("/campaigns", campaignRoutes);
 
+// Ekstra güvenlik için doğrudan rota tanımları
+app.use("/api/notifications", notificationRoutes);
 app.use("/api", apiRouter);
 
 // Geriye dönük uyumluluk için doğrudan kullanımlar
@@ -114,12 +125,11 @@ app.use((req, res) => {
 });
 
 // Vercel ortamı dışında çalışıyorsan (lokalde) sunucuyu başlat
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Sunucu ${PORT} portunda aktif`);
-  });
-}
+// Sunucuyu başlat
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Sunucu ${PORT} portunda aktif: http://172.20.10.12:${PORT}`);
+});
 
 // Vercel için app nesnesini dışa aktar
 module.exports = app;

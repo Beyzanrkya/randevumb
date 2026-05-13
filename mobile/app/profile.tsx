@@ -6,17 +6,16 @@ import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../context/ThemeContext';
 import api from '../constants/Api';
 
-const testCustomerId = "69f7530d8c83d838910931d0"; 
 
 export default function Profile() {
   const { theme, isDark } = useTheme();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showPassModal, setShowPassModal] = useState(false);
-  
+
   const [profile, setProfile] = useState({
     name: '',
     email: '',
@@ -38,7 +37,7 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     try {
-      const res = await api.get(`/customers/${testCustomerId}`);
+      const res = await api.get('/customers/me');
       const data = res.data;
       setProfile({
         name: data.name || '',
@@ -73,11 +72,11 @@ export default function Profile() {
     if (!result.canceled) {
       const base64Img = `data:image/jpeg;base64,${result.assets[0].base64}`;
       setProfile({ ...profile, profilePicture: base64Img });
-      
+
       // Fotoğraf seçildiği an otomatik kaydetme deneyimi
       try {
         setSaving(true);
-        await api.put(`/customers/${testCustomerId}`, { ...profile, profilePicture: base64Img });
+        await api.put('/customers/me', { ...profile, profilePicture: base64Img });
         Alert.alert('Başarılı', 'Profil fotoğrafınız güncellendi.');
       } catch (e) {
         Alert.alert('Hata', 'Fotoğraf kaydedilemedi.');
@@ -90,7 +89,7 @@ export default function Profile() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await api.put(`/customers/${testCustomerId}`, profile);
+      await api.put('/customers/me', profile);
       Alert.alert('Başarılı', 'Profil güncellendi.');
     } catch (e) { Alert.alert('Hata', 'Kaydedilemedi.'); } finally { setSaving(false); }
   };
@@ -102,7 +101,7 @@ export default function Profile() {
     }
     try {
       setSaving(true);
-      await api.patch(`/customers/change-password/${testCustomerId}`, {
+      await api.patch('/customers/change-password/me', {
         oldPassword: passData.old,
         newPassword: passData.new
       });
@@ -141,10 +140,10 @@ export default function Profile() {
 
         <View style={styles.form}>
           <Text style={styles.label}>Ad Soyad</Text>
-          <TextInput style={styles.input} value={profile.name} onChangeText={(v) => setProfile({...profile, name: v})} placeholder="Ad Soyad" placeholderTextColor={theme.subText} />
+          <TextInput style={styles.input} value={profile.name} onChangeText={(v) => setProfile({ ...profile, name: v })} placeholder="Ad Soyad" placeholderTextColor={theme.subText} />
 
           <Text style={styles.label}>Telefon</Text>
-          <TextInput style={styles.input} value={profile.phone} onChangeText={(v) => setProfile({...profile, phone: v})} placeholder="Telefon" placeholderTextColor={theme.subText} keyboardType="phone-pad" />
+          <TextInput style={styles.input} value={profile.phone} onChangeText={(v) => setProfile({ ...profile, phone: v })} placeholder="Telefon" placeholderTextColor={theme.subText} keyboardType="phone-pad" />
 
           <Text style={styles.label}>Doğum Tarihi</Text>
           <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
@@ -167,9 +166,9 @@ export default function Profile() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Şifre Değiştir</Text>
-            <TextInput style={styles.input} value={passData.old} onChangeText={(v) => setPassData({...passData, old: v})} placeholder="Eski Şifre" placeholderTextColor={theme.subText} secureTextEntry />
-            <TextInput style={styles.input} value={passData.new} onChangeText={(v) => setPassData({...passData, new: v})} placeholder="Yeni Şifre" placeholderTextColor={theme.subText} secureTextEntry />
-            <TextInput style={styles.input} value={passData.confirm} onChangeText={(v) => setPassData({...passData, confirm: v})} placeholder="Yeni Şifre Tekrar" placeholderTextColor={theme.subText} secureTextEntry />
+            <TextInput style={styles.input} value={passData.old} onChangeText={(v) => setPassData({ ...passData, old: v })} placeholder="Eski Şifre" placeholderTextColor={theme.subText} secureTextEntry />
+            <TextInput style={styles.input} value={passData.new} onChangeText={(v) => setPassData({ ...passData, new: v })} placeholder="Yeni Şifre" placeholderTextColor={theme.subText} secureTextEntry />
+            <TextInput style={styles.input} value={passData.confirm} onChangeText={(v) => setPassData({ ...passData, confirm: v })} placeholder="Yeni Şifre Tekrar" placeholderTextColor={theme.subText} secureTextEntry />
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TouchableOpacity style={[styles.confirmBtn, { flex: 1, backgroundColor: theme.border }]} onPress={() => setShowPassModal(false)}>
                 <Text style={{ color: theme.text }}>İptal</Text>

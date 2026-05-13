@@ -4,6 +4,7 @@ import api from '../constants/Api';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import * as SecureStore from 'expo-secure-store';
 
 export default function BusinessLoginScreen() {
   const { isDark, toggleTheme, theme } = useTheme();
@@ -31,6 +32,8 @@ export default function BusinessLoginScreen() {
     try {
       const response = await api.post('/businesses/login', { email, password });
       if (response.data.token) {
+        await SecureStore.setItemAsync('userToken', response.data.token);
+        await SecureStore.setItemAsync('userRole', 'business');
         Alert.alert('Giriş Başarılı', `Hoş geldiniz!`);
         router.push('/business-selection' as any);
       }
@@ -138,24 +141,6 @@ export default function BusinessLoginScreen() {
             )}
           </TouchableOpacity>
 
-          <View style={styles.dividerContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.dividerText}>SOSYAL HESAPLA GİRİŞ</Text>
-            <View style={styles.divider} />
-          </View>
-
-          <View style={styles.socialContainer}>
-            <TouchableOpacity style={styles.socialButton} onPress={() => handleSocialLogin('Google Business')}>
-              <Ionicons name="logo-google" size={20} color={theme.text} />
-              <Text style={[styles.socialButtonText, { color: theme.text }]}>Google Business</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={[styles.socialButton, { backgroundColor: theme.secondary }]} onPress={() => handleSocialLogin('Apple ID')}>
-              <Ionicons name="logo-apple" size={20} color="#fff" />
-              <Text style={[styles.socialButtonText, { color: '#fff' }]}>Apple ID</Text>
-            </TouchableOpacity>
-          </View>
-
           <TouchableOpacity style={styles.registerLink} onPress={() => router.push('/business-register')}>
             <Text style={styles.registerText}>
               İşletme hesabınız yok mu? <Text style={styles.registerAction}>Hemen Kayıt Olun</Text>
@@ -182,7 +167,7 @@ export default function BusinessLoginScreen() {
               <TouchableOpacity 
                 key={i} 
                 style={[styles.menuItem, { backgroundColor: isDark ? theme.secondary : '#F3F4F6' }]} 
-                onPress={() => { setMenuVisible(false); router.push(link.path); }}
+                onPress={() => { setMenuVisible(false); router.push(link.path as any); }}
               >
                 <Text style={[styles.menuItemText, { color: theme.text }]}>{link.title}</Text>
               </TouchableOpacity>
@@ -194,7 +179,7 @@ export default function BusinessLoginScreen() {
   );
 }
 
-const createStyles = (theme, isDark) => StyleSheet.create({
+const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
   scrollContainer: { flexGrow: 1, backgroundColor: theme.background },
   headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 60, paddingBottom: 20 },
   backButton: { width: 40 },

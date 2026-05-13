@@ -9,7 +9,7 @@ export default function BookingScreen() {
   const { businessId, serviceId } = useLocalSearchParams();
   const { theme, isDark } = useTheme();
   const router = useRouter();
-  
+
   const [loading, setLoading] = useState(false);
   const [days, setDays] = useState<any[]>([]); // never[] hatası için tip eklendi
   const [selectedDate, setSelectedDate] = useState<string | null>(null); // null hatası için tip eklendi
@@ -121,8 +121,8 @@ export default function BookingScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity 
-          style={[styles.confirmButton, (!selectedDate || !selectedTime) && { opacity: 0.5 }]} 
+        <TouchableOpacity
+          style={[styles.confirmButton, (!selectedDate || !selectedTime) && { opacity: 0.5 }]}
           onPress={handleBooking}
           disabled={loading || !selectedDate || !selectedTime}
         >

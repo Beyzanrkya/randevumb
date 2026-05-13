@@ -1,5 +1,4 @@
-# Build aşaması
-FROM node:18-alpine as build-stage
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -7,10 +6,12 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+
+# Uygulamayı build et (Eğer statik dosya gerekiyorsa)
 RUN npm run build
 
-# Yayına hazırlama (Nginx) aşaması
-FROM nginx:stable-alpine
-COPY --from=build-stage /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Uygulamanın çalışacağı port
+EXPOSE 3000
+
+# Uygulamayı başlatıyoruz (Vite için preview modu)
+CMD ["npm", "run", "preview"]

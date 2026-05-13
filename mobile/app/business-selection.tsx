@@ -8,7 +8,7 @@ import api from '../constants/Api';
 const { width } = Dimensions.get('window');
 
 // Test için senin gerçek Business Owner ID'ni kullanıyoruz
-const testOwnerId = "69f754fa8c83d83891093216"; 
+const testOwnerId = "69f754fa8c83d83891093216";
 
 export default function BusinessSelection() {
   const { theme, isDark } = useTheme();
@@ -24,7 +24,7 @@ export default function BusinessSelection() {
     try {
       setLoading(true);
       const response = await api.get('/businesses');
-      const myBusinesses = response.data.filter((b: any) => 
+      const myBusinesses = response.data.filter((b: any) =>
         b.ownerId === testOwnerId || b.ownerId?._id === testOwnerId
       );
       setBusinesses(myBusinesses);
@@ -64,14 +64,14 @@ export default function BusinessSelection() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {businesses.length > 0 ? (
           businesses.map((item) => (
-            <TouchableOpacity 
-              key={item._id} 
-              style={styles.card} 
+            <TouchableOpacity
+              key={item._id}
+              style={styles.card}
               onPress={() => handleSelect(item._id)}
             >
-              <Image 
-                source={{ uri: item.imageUrl || 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=400' }} 
-                style={styles.cardImage} 
+              <Image
+                source={{ uri: item.imageUrl || 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=400' }}
+                style={styles.cardImage}
               />
               <View style={styles.cardInfo}>
                 <Text style={styles.cardName}>{item.name}</Text>
@@ -100,8 +100,8 @@ export default function BusinessSelection() {
 
       {/* Persistent Add Business Button */}
       <View style={styles.footer}>
-        <TouchableOpacity 
-          style={styles.addBtn} 
+        <TouchableOpacity
+          style={styles.addBtn}
           onPress={() => router.push('/add-business' as any)}
         >
           <Ionicons name="add-circle" size={24} color="#fff" />
@@ -120,14 +120,14 @@ const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
   title: { fontSize: 26, fontWeight: '900', color: theme.text },
   subtitle: { fontSize: 14, color: theme.subText, lineHeight: 20 },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 100 },
-  card: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: theme.card, 
-    borderRadius: 25, 
-    padding: 15, 
-    marginBottom: 15, 
-    borderWidth: 1, 
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.card,
+    borderRadius: 25,
+    padding: 15,
+    marginBottom: 15,
+    borderWidth: 1,
     borderColor: theme.border,
     shadowColor: '#000',
     shadowOpacity: 0.05,
@@ -143,22 +143,22 @@ const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
   statText: { fontSize: 11, color: theme.subText, fontWeight: '600' },
   emptyContainer: { alignItems: 'center', marginTop: 80 },
   emptyText: { marginTop: 15, fontSize: 14, color: theme.subText, fontWeight: '600' },
-  footer: { 
-    position: 'absolute', 
-    bottom: 0, 
-    width: '100%', 
-    padding: 20, 
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    padding: 20,
     backgroundColor: theme.background,
     borderTopWidth: 1,
     borderTopColor: theme.border
   },
-  addBtn: { 
-    backgroundColor: theme.primary, 
-    paddingVertical: 18, 
-    borderRadius: 20, 
-    flexDirection: 'row', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
+  addBtn: {
+    backgroundColor: theme.primary,
+    paddingVertical: 18,
+    borderRadius: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: 10,
     shadowColor: theme.primary,
     shadowOpacity: 0.3,

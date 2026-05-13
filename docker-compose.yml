@@ -1,37 +1,93 @@
 version: '3.8'
 
 services:
-  # Backend Servisi
+  # 1. MongoDB (Veritabanı Kapsayıcısı)
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_kapsayici
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - mbrandev_network
+
+  # 2. Redis (Önbellekleme Kapsayıcısı)
+  redis:
+    image: redis:alpine
+    container_name: redis_kapsayici
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mbrandev_network
+
+  # 3. RabbitMQ (Mesaj Kuyruğu Kapsayıcısı)
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_kapsayici
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672" # Management UI
+    networks:
+      - mbrandev_network
+
+  # 4. Backend (REST API Kapsayıcısı)
   backend:
     build: ./backend
+    container_name: backend_kapsayici
+    restart: always
     ports:
       - "5000:5000"
     environment:
-      - MONGO_URI=${MONGO_URI}
-      - JWT_SECRET=${JWT_SECRET}
+      - MONGO_URI=mongodb://mongodb:27017/mbrandev
+      - JWT_SECRET=mb_gizli_anahtar_2024
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://rabbitmq:5672
     depends_on:
+      - mongodb
       - redis
       - rabbitmq
+    networks:
+      - mbrandev_network
 
-  # Frontend (Web) Servisi
+  # 5. Frontend (Web Kapsayıcısı)
   frontend:
     build: ./frontend
+    container_name: web_frontend_kapsayici
+    restart: always
     ports:
-      - "3000:80"
+      - "3000:3000"
     depends_on:
       - backend
+    networks:
+      - mbrandev_network
 
-  # Redis (Hocanızın istediği Önbellekleme sistemi)
-  redis:
-    image: redis:alpine
+  # 6. Jenkins (CI/CD Kapsayıcısı)
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins_kapsayici
+    privileged: true
+    user: root
     ports:
-      - "6379:6379"
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/app
+    networks:
+      - mbrandev_network
 
-  # RabbitMQ (Hocanızın istediği Mesaj Kuyruğu sistemi)
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672" # RabbitMQ Panel arayüzü
+networks:
+  mbrandev_network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  redis_data:
+  jenkins_data:

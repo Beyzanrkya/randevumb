@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator, ScrollView, ImageBackground, Image, Modal, SafeAreaView } from 'react-native';
 import api from '../constants/Api';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import * as WebBrowser from 'expo-web-browser';
+
+import * as SecureStore from 'expo-secure-store';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const { isDark, toggleTheme, theme } = useTheme();
@@ -31,6 +36,8 @@ export default function LoginScreen() {
     try {
       const response = await api.post('/customers/login', { email, password });
       if (response.data.token) {
+        await SecureStore.setItemAsync('userToken', response.data.token);
+        await SecureStore.setItemAsync('userRole', 'customer');
         Alert.alert('Giriş Başarılı', `Hoş geldiniz, ${response.data.customerName || 'Müşterimiz'}!`);
         router.replace('/customer-dashboard');
       }
@@ -143,23 +150,7 @@ export default function LoginScreen() {
             )}
           </TouchableOpacity>
 
-          <View style={styles.dividerContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.dividerText}>VEYA ŞUNUNLA DEVAM EDİN</Text>
-            <View style={styles.divider} />
-          </View>
 
-          <View style={styles.socialContainer}>
-            <TouchableOpacity style={styles.socialButton} onPress={() => handleSocialLogin('Google')}>
-              <Ionicons name="logo-google" size={20} color={theme.text} />
-              <Text style={[styles.socialButtonText, { color: theme.text }]}>Google ile Giriş Yap</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={[styles.socialButton, { backgroundColor: theme.secondary }]} onPress={() => handleSocialLogin('Apple')}>
-              <Ionicons name="logo-apple" size={20} color="#fff" />
-              <Text style={[styles.socialButtonText, { color: '#fff' }]}>Apple ile Giriş Yap</Text>
-            </TouchableOpacity>
-          </View>
 
           <TouchableOpacity style={styles.registerLink} onPress={() => router.push('/customer-register' as any)}>
             <Text style={styles.registerText}>

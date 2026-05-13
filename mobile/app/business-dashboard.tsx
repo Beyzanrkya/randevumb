@@ -12,7 +12,7 @@ export default function BusinessDashboard() {
   const { businessId } = useLocalSearchParams();
   const { theme, isDark } = useTheme();
   const router = useRouter();
-  
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('appointments'); // appointments, services, reviews
@@ -28,7 +28,7 @@ export default function BusinessDashboard() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
-  
+
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -41,11 +41,9 @@ export default function BusinessDashboard() {
     }
   }, [businessId]);
 
-  const fetchNotifications = async (manualId?: string) => {
+  const fetchNotifications = async () => {
     try {
-      const targetId = manualId || business?.ownerId;
-      if (!targetId) return;
-      const response = await api.get(`/notifications/test/${targetId}`);
+      const response = await api.get('/notifications');
       setNotifications(response.data);
     } catch (error: any) {
       console.error("Bildirimler çekilemedi:", error.response?.data || error.message);
@@ -80,18 +78,16 @@ export default function BusinessDashboard() {
       setReviews(rRes.data);
       setWeeklyStats(stRes.data);
       setCampaigns(cRes.data);
-      
-      // İşletme sahibi bilgisini aldıktan sonra bildirimleri çek
-      if (bRes.data.ownerId) {
-        fetchNotifications(bRes.data.ownerId);
-      }
+
+      // Bildirimleri çek
+      fetchNotifications();
 
       const allApps = aRes.data.appointments || [];
-      const myApps = allApps.filter((a: any) => 
+      const myApps = allApps.filter((a: any) =>
         (a.businessId?._id === businessId || a.businessId === businessId)
       );
       setAppointments(myApps);
-      
+
       const pending = myApps.filter((a: any) => a.status === 'pending').length;
       const completed = myApps.filter((a: any) => a.status === 'completed').length;
       setStats({ total: myApps.length, pending, completed });
@@ -131,16 +127,16 @@ export default function BusinessDashboard() {
     const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
     const maxCount = Math.max(...data.map(d => d.count), 5);
     const days = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
-    
+
     return (
       <View style={styles.chartContainer}>
         {data.map((item, index) => {
           const height = (item.count / maxCount) * 100;
           const dayLabel = days[new Date(item.date).getDay() === 0 ? 6 : new Date(item.date).getDay() - 1];
-          
+
           return (
-            <TouchableOpacity 
-              key={index} 
+            <TouchableOpacity
+              key={index}
               activeOpacity={0.7}
               style={styles.barWrapper}
               onPress={() => setSelectedIdx(selectedIdx === index ? null : index)}
@@ -176,11 +172,11 @@ export default function BusinessDashboard() {
           <Ionicons name="business" size={20} color={theme.primary} />
           <Text style={styles.switchText}>Değiştir</Text>
         </TouchableOpacity>
-        
+
         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10 }}>
           <Text style={styles.businessTitle} numberOfLines={1}>{business?.name}</Text>
-          <TouchableOpacity 
-            style={styles.notificationButton} 
+          <TouchableOpacity
+            style={styles.notificationButton}
             onPress={() => setShowNotifications(true)}
           >
             <Ionicons name="notifications-outline" size={22} color={theme.primary} />
@@ -192,8 +188,8 @@ export default function BusinessDashboard() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity 
-          style={styles.settingsBtn} 
+        <TouchableOpacity
+          style={styles.settingsBtn}
           onPress={() => router.push({ pathname: '/business-settings', params: { businessId } })}
         >
           <Ionicons name="cog-outline" size={24} color={theme.text} />
@@ -212,8 +208,8 @@ export default function BusinessDashboard() {
             <ScrollView showsVerticalScrollIndicator={false}>
               {notifications.length > 0 ? (
                 notifications.map((n) => (
-                  <TouchableOpacity 
-                    key={n._id} 
+                  <TouchableOpacity
+                    key={n._id}
                     style={[styles.notifItem, !n.isRead && styles.notifUnread]}
                     onPress={() => markAsRead(n._id)}
                   >
@@ -237,7 +233,7 @@ export default function BusinessDashboard() {
         </View>
       </Modal>
 
-      <ScrollView 
+      <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />}
       >
@@ -281,12 +277,12 @@ export default function BusinessDashboard() {
                 <View style={styles.badge}><Text style={styles.badgeText}>{appointments.filter(a => a.status === 'pending' || a.status === 'confirmed').length}</Text></View>
               </View>
               {appointments.filter(a => a.status === 'pending' || a.status === 'confirmed').map((item) => (
-                <AppointmentCard 
-                  key={item._id} 
-                  item={item} 
-                  onAction={handleUpdateStatus} 
+                <AppointmentCard
+                  key={item._id}
+                  item={item}
+                  onAction={handleUpdateStatus}
                   onReject={confirmReject}
-                  theme={theme} 
+                  theme={theme}
                 />
               ))}
               {appointments.filter(a => a.status === 'pending' || a.status === 'confirmed').length === 0 && (
@@ -299,8 +295,8 @@ export default function BusinessDashboard() {
             <View>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Hizmet Listesi</Text>
-                <TouchableOpacity 
-                  style={styles.addSmallBtn} 
+                <TouchableOpacity
+                  style={styles.addSmallBtn}
                   onPress={() => router.push({ pathname: '/add-service', params: { businessId } })}
                 >
                   <Ionicons name="add" size={20} color="#fff" />
@@ -354,16 +350,16 @@ export default function BusinessDashboard() {
                     <Text style={styles.discountText}>%{camp.discountRate} İndirim</Text>
                   </View>
                 </View>
-                <TouchableOpacity 
-                  onPress={() => router.push({ 
-                    pathname: '/create-campaign', 
-                    params: { 
-                      businessId, 
+                <TouchableOpacity
+                  onPress={() => router.push({
+                    pathname: '/create-campaign',
+                    params: {
+                      businessId,
                       campaignId: camp._id,
                       title: camp.title,
                       description: camp.description,
                       discountRate: camp.discountRate.toString()
-                    } 
+                    }
                   })}
                 >
                   <Ionicons name="create-outline" size={20} color={theme.primary} />
@@ -383,7 +379,7 @@ export default function BusinessDashboard() {
 
         {/* Quick Footer Action */}
         <View style={styles.quickActions}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => router.push(`/create-campaign?businessId=${businessId}` as any)}
           >
@@ -411,8 +407,8 @@ export default function BusinessDashboard() {
               <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowRejectModal(false)}>
                 <Text style={styles.cancelBtnText}>Vazgeç</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.confirmRejectBtn} 
+              <TouchableOpacity
+                style={styles.confirmRejectBtn}
                 onPress={() => handleUpdateStatus(selectedAppId!, 'cancelled', rejectReason)}
               >
                 <Text style={styles.confirmRejectBtnText}>Reddet</Text>
@@ -433,7 +429,7 @@ const StatBox = ({ label, value, color }: any) => (
 );
 
 const TabItem = ({ id, label, icon, activeTab, setActiveTab, theme }: any) => (
-  <TouchableOpacity 
+  <TouchableOpacity
     style={[styles3.tabItem, activeTab === id && { borderBottomColor: theme.primary, borderBottomWidth: 3 }]}
     onPress={() => setActiveTab(id)}
   >

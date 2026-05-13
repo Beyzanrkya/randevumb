@@ -31,7 +31,6 @@ export default function CustomerDashboard() {
 
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const testCustomerId = "69f7530d8c83d838910931d0";
 
   useEffect(() => {
     fetchBusinesses();
@@ -42,8 +41,8 @@ export default function CustomerDashboard() {
 
   const fetchNotifications = async () => {
     try {
-      // Daha güvenilir test rotasına geçiş
-      const response = await api.get(`/notifications/test/${testCustomerId}`); 
+      // Dinamik ve güvenli rotaya geçiş
+      const response = await api.get('/notifications');
       setNotifications(response.data);
     } catch (error: any) {
       console.error("Bildirimler çekilemedi:", error.response?.data || error.message);
@@ -92,15 +91,15 @@ export default function CustomerDashboard() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        
+
         <View style={styles.header}>
           <View>
             <Text style={styles.welcomeText}>Hoş Geldin, 👋</Text>
             <Text style={styles.userName}>Müşterimiz</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 10 }}>
-            <TouchableOpacity 
-              style={styles.notificationButton} 
+            <TouchableOpacity
+              style={styles.notificationButton}
               onPress={() => setShowNotifications(true)}
             >
               <Ionicons name="notifications-outline" size={24} color={theme.primary} />
@@ -130,8 +129,8 @@ export default function CustomerDashboard() {
               <ScrollView showsVerticalScrollIndicator={false}>
                 {notifications.length > 0 ? (
                   notifications.map((n) => (
-                    <TouchableOpacity 
-                      key={n._id} 
+                    <TouchableOpacity
+                      key={n._id}
                       style={[styles.notifItem, !n.isRead && styles.notifUnread]}
                       onPress={() => markAsRead(n._id)}
                     >
@@ -192,13 +191,13 @@ export default function CustomerDashboard() {
             <Text style={styles.sectionTitle}>İşletmeleri Keşfet</Text>
             <TouchableOpacity onPress={fetchBusinesses}><Ionicons name="refresh" size={20} color={theme.primary} /></TouchableOpacity>
           </View>
-          
+
           {loading ? (
             <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 20 }} />
           ) : filteredBusinesses.length > 0 ? (
             filteredBusinesses.map((business: any) => (
-              <TouchableOpacity 
-                key={business._id} 
+              <TouchableOpacity
+                key={business._id}
                 style={styles.businessCard}
                 onPress={() => router.push(`/business-detail/${business._id}` as any)}
               >
@@ -228,12 +227,12 @@ export default function CustomerDashboard() {
         </View>
 
         <TouchableOpacity style={styles.bannerContainer}>
-           <ImageBackground source={{ uri: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800' }} style={styles.bannerImage} imageStyle={{ borderRadius: 20 }}>
-             <View style={styles.bannerOverlay}>
-               <Text style={styles.bannerTitle}>İlk Randevuna Özel</Text>
-               <Text style={styles.bannerDiscount}>%20 İNDİRİM</Text>
-             </View>
-           </ImageBackground>
+          <ImageBackground source={{ uri: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800' }} style={styles.bannerImage} imageStyle={{ borderRadius: 20 }}>
+            <View style={styles.bannerOverlay}>
+              <Text style={styles.bannerTitle}>İlk Randevuna Özel</Text>
+              <Text style={styles.bannerDiscount}>%20 İNDİRİM</Text>
+            </View>
+          </ImageBackground>
         </TouchableOpacity>
       </ScrollView>
 
@@ -324,5 +323,9 @@ const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
   menuHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30, paddingTop: 10 },
   menuTitle: { fontSize: 22, fontWeight: '900', color: theme.primary },
   menuItems: { gap: 10 },
-  menuDivider: { height: 1, backgroundColor: theme.border, marginVertical: 10 }
+  menuDivider: { height: 1, backgroundColor: theme.border, marginVertical: 10 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  modalTitle: { fontSize: 20, fontWeight: '900', color: theme.text },
+  floatingAIButton: { position: 'absolute', bottom: 30, right: 20, backgroundColor: theme.primary, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 30, flexDirection: 'row', alignItems: 'center', gap: 8, shadowColor: theme.primary, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8 },
+  floatingAIText: { color: '#fff', fontWeight: '800', fontSize: 14 }
 });

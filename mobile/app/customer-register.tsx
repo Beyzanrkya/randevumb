@@ -12,6 +12,9 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [otpModalVisible, setOtpModalVisible] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
   const router = useRouter();
 
   const navLinks = [
@@ -30,16 +33,41 @@ export default function RegisterScreen() {
 
     setLoading(true);
     try {
+      console.log("Kayıt isteği gönderiliyor:", { name, email });
       const response = await api.post('/customers/register', { name, email, password });
+      console.log("Kayıt yanıtı alındı:", response.data);
       if (response.data) {
-        Alert.alert('Başarılı', 'Kaydınız başarıyla oluşturuldu. Giriş yapabilirsiniz.');
-        router.push('/login' as any);
+        setOtpModalVisible(true);
+        console.log("OTP Modalı açılmalı: true");
       }
     } catch (error: any) {
+      console.error("Kayıt hatası:", error.response?.data || error.message);
       const errorMsg = error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
       Alert.alert('Kayıt Başarısız', errorMsg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otpCode || otpCode.length < 4) {
+      Alert.alert('Hata', 'Lütfen geçerli bir doğrulama kodu girin.');
+      return;
+    }
+
+    setVerifying(true);
+    try {
+      const response = await api.post('/customers/verify-email', { email, code: otpCode });
+      if (response.data) {
+        Alert.alert('Başarılı', 'E-posta adresiniz doğrulandı! Şimdi giriş yapabilirsiniz.');
+        setOtpModalVisible(false);
+        router.push('/login' as any);
+      }
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.message || 'Doğrulama kodu hatalı veya süresi dolmuş.';
+      Alert.alert('Doğrulama Başarısız', errorMsg);
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -150,24 +178,6 @@ export default function RegisterScreen() {
             )}
           </TouchableOpacity>
 
-          <View style={styles.dividerContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.dividerText}>HIZLI KAYIT OLUN</Text>
-            <View style={styles.divider} />
-          </View>
-
-          <View style={styles.socialContainer}>
-            <TouchableOpacity style={styles.socialButton} onPress={() => handleSocialLogin('Google')}>
-              <Ionicons name="logo-google" size={20} color={theme.text} />
-              <Text style={[styles.socialButtonText, { color: theme.text }]}>Google ile Kayıt Ol</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={[styles.socialButton, { backgroundColor: theme.secondary }]} onPress={() => handleSocialLogin('Apple')}>
-              <Ionicons name="logo-apple" size={20} color="#fff" />
-              <Text style={[styles.socialButtonText, { color: '#fff' }]}>Apple ile Devam Et</Text>
-            </TouchableOpacity>
-          </View>
-
           <TouchableOpacity style={styles.loginLink} onPress={() => router.push('/login' as any)}>
             <Text style={styles.loginText}>
               Zaten bir hesabınız var mı? <Text style={styles.loginAction}>Giriş Yapın</Text>
@@ -175,6 +185,43 @@ export default function RegisterScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* OTP Verification Modal */}
+      <Modal visible={otpModalVisible} animationType="fade" transparent={true}>
+        <View style={styles.otpModalOverlay}>
+          <View style={[styles.otpCard, { backgroundColor: theme.card }]}>
+            <View style={styles.otpIconContainer}>
+              <Ionicons name="mail-open-outline" size={40} color={theme.primary} />
+            </View>
+            <Text style={[styles.otpTitle, { color: theme.text }]}>E-postanızı Doğrulayın</Text>
+            <Text style={[styles.otpSubtitle, { color: theme.subText }]}>
+              {email} adresine gönderdiğimiz 6 haneli kodu aşağıya girin.
+            </Text>
+            
+            <TextInput
+              style={[styles.otpInput, { color: theme.text, borderColor: theme.border, backgroundColor: theme.inputBg }]}
+              placeholder="000000"
+              placeholderTextColor={isDark ? "#64748B" : "#A0AEC0"}
+              value={otpCode}
+              onChangeText={setOtpCode}
+              keyboardType="number-pad"
+              maxLength={6}
+            />
+
+            <TouchableOpacity 
+              style={[styles.verifyButton, { backgroundColor: theme.secondary }]} 
+              onPress={handleVerifyOTP}
+              disabled={verifying}
+            >
+              {verifying ? <ActivityIndicator color="#fff" /> : <Text style={styles.verifyButtonText}>Kodu Doğrula</Text>}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setOtpModalVisible(false)} style={styles.cancelOtpButton}>
+              <Text style={[styles.cancelOtpText, { color: theme.subText }]}>Vazgeç</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Menu Modal */}
       <Modal visible={menuVisible} animationType="slide" transparent={false}>
@@ -252,5 +299,17 @@ const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
   menuHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 },
   menuLinks: { gap: 15 },
   menuItem: { padding: 22, borderRadius: 20, alignItems: 'center' },
-  menuItemText: { fontSize: 18, fontWeight: '700' }
+  menuItemText: { fontSize: 18, fontWeight: '700' },
+
+  // OTP Modal Styles
+  otpModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+  otpCard: { width: '85%', padding: 30, borderRadius: 30, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 10 },
+  otpIconContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: isDark ? '#3E1D26' : '#FCE7F3', justifyContent: 'center', alignItems: 'center', marginBottom: 20 },
+  otpTitle: { fontSize: 22, fontWeight: '800', marginBottom: 10 },
+  otpSubtitle: { fontSize: 14, textAlign: 'center', marginBottom: 25, lineHeight: 20 },
+  otpInput: { width: '100%', padding: 18, borderRadius: 15, fontSize: 24, textAlign: 'center', letterSpacing: 8, fontWeight: '700', borderWidth: 1, marginBottom: 20 },
+  verifyButton: { width: '100%', padding: 18, borderRadius: 15, alignItems: 'center', marginBottom: 15 },
+  verifyButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  cancelOtpButton: { padding: 10 },
+  cancelOtpText: { fontSize: 14, fontWeight: '600' }
 });

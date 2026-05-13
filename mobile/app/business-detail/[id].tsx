@@ -11,14 +11,14 @@ export default function BusinessDetail() {
   const { id } = useLocalSearchParams();
   const { theme, isDark } = useTheme();
   const router = useRouter();
-  
+
   const [business, setBusiness] = useState<any>(null); // any eklendi
   const [services, setServices] = useState<any[]>([]); // never[] hatası için
   const [reviews, setReviews] = useState<any[]>([]); // never[] hatası için
   const [loyalty, setLoyalty] = useState<any>({ points: 0 });
   const [loading, setLoading] = useState(true);
   const [selectedService, setSelectedService] = useState<any>(null);
-  
+
   const [userRating, setUserRating] = useState(5);
   const [userComment, setUserComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,14 +30,14 @@ export default function BusinessDetail() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const testCustomerId = "69f7530d8c83d8389109310"; 
-      
+      const testCustomerId = "69f7530d8c83d8389109310";
+
       const [bRes, sRes, rRes] = await Promise.all([
         api.get(`/businesses/${id}`),
         api.get(`/services?businessId=${id}`),
         api.get(`/reviews/business/${id}`)
       ]);
-      
+
       try {
         const lRes = await api.get(`/loyalty/debug/${id}`);
         const userLoyalty = lRes.data.records.find((r: any) => r.customerId._id === testCustomerId);
@@ -75,7 +75,7 @@ export default function BusinessDetail() {
       Alert.alert('Başarılı', 'Değerlendirmeniz paylaşıldı.');
       setUserComment('');
       setUserRating(5);
-      
+
       const rRes = await api.get(`/reviews/business/${id}`);
       setReviews(rRes.data);
       const bRes = await api.get(`/businesses/${id}`);
@@ -130,7 +130,7 @@ export default function BusinessDetail() {
           </View>
 
           <View style={styles.divider} />
-          
+
           <View style={styles.loyaltyCard}>
             <Text style={styles.loyaltyTitle}>Sadakat Kartı ({loyalty.points} Puan)</Text>
             <View style={styles.stampContainer}>
@@ -170,8 +170,8 @@ export default function BusinessDetail() {
 
       {selectedService && (
         <SafeAreaView style={styles.footer}>
-          <TouchableOpacity 
-            style={styles.bookButton} 
+          <TouchableOpacity
+            style={styles.bookButton}
             onPress={() => router.push({ pathname: `/booking/${id}` as any, params: { serviceId: selectedService._id } })}
           >
             <Text style={styles.bookButtonText}>Randevu Al: {selectedService.name}</Text>

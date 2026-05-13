@@ -4,6 +4,12 @@ const Appointment = require("../models/Appointment");
 const Business = require("../models/Business");
 const Service = require("../models/Service");
 const authMiddleware = require("../middleware/auth");
+const Notification = require("../models/Notification");
+const Customer = require("../models/Customer");
+const Loyalty = require("../models/Loyalty");
+const BusinessOwner = require("../models/BusinessOwner");
+const mailer = require("../utils/mailer");
+const { amqpChannel } = require("../utils/infrastructure");
 
 // --- TÜM RANDEVULARI LİSTELEME (TEST İÇİN HERKESE AÇIK) ---
 router.get("/", async (req, res) => {
@@ -33,16 +39,11 @@ router.get("/", async (req, res) => {
   }
 });
 
-const Notification = require("../models/Notification");
-const Customer = require("../models/Customer");
-const BusinessOwner = require("../models/BusinessOwner");
-const mailer = require("../utils/mailer");
-
 // Randevu oluşturma
 router.post("/", async (req, res) => {
   try {
     const { customerId, businessId, serviceId, date, time, note } = req.body;
-    
+
     const newAppointment = new Appointment({
       customerId: customerId || "69f7530d8c83d838910931d0", // Ahmet ID default
       businessId,
@@ -60,7 +61,7 @@ router.post("/", async (req, res) => {
       const business = await Business.findById(businessId);
       const service = await Service.findById(serviceId);
       const customer = await Customer.findById(newAppointment.customerId);
-      
+
       if (!business) {
         console.error("Hata: İşletme bulunamadı, bildirim oluşturulamaz.");
         return;
@@ -80,7 +81,7 @@ router.post("/", async (req, res) => {
 
       if (business.ownerId) {
         const owner = await BusinessOwner.findById(business.ownerId);
-        
+
         // Uygulama içi bildirim
         try {
           await new Notification({
@@ -118,14 +119,12 @@ router.post("/", async (req, res) => {
   }
 });
 
-const Loyalty = require("../models/Loyalty");
-
 // Randevu durumu güncelleme (İptal vs)
 router.put("/:id", async (req, res) => {
   try {
     const { status, note } = req.body;
     const appointment = await Appointment.findById(req.params.id);
-    
+
     if (!appointment) {
       return res.status(404).json({ message: "Randevu bulunamadı" });
     }
@@ -154,22 +153,35 @@ router.put("/:id", async (req, res) => {
       try {
         const business = await Business.findById(appointment.businessId);
         const customer = await Customer.findById(appointment.customerId);
-        
+
         if (!business) {
           console.error("Hata: İşletme bulunamadı, durum bildirimi gönderilemez.");
           return res.json({ message: "Durum güncellendi ancak bildirim gönderilemedi", appointment: updated });
         }
 
-        let statusText = status === 'confirmed' ? 'onaylandı' : 
-                         status === 'cancelled' ? 'reddedildi/iptal edildi' : 
-                         status === 'completed' ? 'tamamlandı' : status;
-        
-        // Müşteriye bildir (Uygulama içi)
-        await new Notification({
-          recipientId: appointment.customerId,
-          recipientModel: "Customer",
-          message: `Randevu Durumu: ${business ? business.name : 'İşletme'} için ${appointment.date} tarihindeki randevunuz ${statusText}.${pointsMessage}`
-        }).save();
+        let statusText = status === 'confirmed' ? 'onaylandı' :
+          status === 'cancelled' ? 'reddedildi/iptal edildi' :
+            status === 'completed' ? 'tamamlandı' : status;
+
+        // --- RABBITMQ İLE BİLDİRİMİ KUYRUĞA AT (Hoca İsteği 3) ---
+        if (amqpChannel) {
+          const notificationData = {
+            recipientId: appointment.customerId,
+            recipientModel: "Customer",
+            message: `Randevu Durumu: ${business ? business.name : 'İşletme'} için ${appointment.date} tarihindeki randevunuz ${statusText}.${pointsMessage}`
+          };
+          
+          amqpChannel.assertQueue("notifications_queue", { durable: true });
+          amqpChannel.sendToQueue("notifications_queue", Buffer.from(JSON.stringify(notificationData)));
+          console.log("🐰 [RabbitMQ] Bildirim kuyruğa gönderildi");
+        } else {
+          // Fallback: Eğer RabbitMQ bağlı değilse normal kaydet
+          await new Notification({
+            recipientId: appointment.customerId,
+            recipientModel: "Customer",
+            message: `Randevu Durumu: ${business ? business.name : 'İşletme'} için ${appointment.date} tarihindeki randevunuz ${statusText}.${pointsMessage}`
+          }).save();
+        }
 
         // Müşteriye bildir (Email)
         if (customer && customer.email) {
@@ -188,7 +200,7 @@ router.put("/:id", async (req, res) => {
         console.error("Bildirim/Mail güncelleme hatası:", notifErr);
       }
     }
-    
+
     res.json({ message: "Durum güncellendi", appointment: updated });
   } catch (error) {
     res.status(500).json({ message: "Güncelleme başarısız", error: error.message });

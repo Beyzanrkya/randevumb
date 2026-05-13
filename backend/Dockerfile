@@ -1,5 +1,5 @@
 # Node.js tabanlı bir imaj kullanıyoruz
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Çalışma dizinini ayarlıyoruz
 WORKDIR /app
@@ -14,5 +14,5 @@ COPY . .
 # Uygulamanın çalışacağı port
 EXPOSE 5000
 
-# Uygulamayı başlatıyoruz
-CMD ["npm", "start"]
+# Uygulamayı başlatıyoruz (Hocanın istediği format)
+CMD ["node", "index.js"]

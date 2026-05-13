@@ -39,11 +39,11 @@ router.get("/business/:businessId", authMiddleware, async (req, res) => {
 router.get("/debug/:businessId", async (req, res) => {
   try {
     const bId = req.params.businessId;
-    
+
     // Tüm sadakat kayıtlarını getir (Sadece teşhis için!)
     const allLoyalties = await Loyalty.find({ businessId: new mongoose.Types.ObjectId(bId) })
       .populate("customerId", "name email");
-    
+
     res.json({
       message: "Sistemdeki Tüm Puan Kayıtları (Bu İşletme İçin)",
       businessId: bId,
@@ -86,11 +86,11 @@ router.post("/redeem", authMiddleware, async (req, res) => {
       });
     }
 
-    res.json({ 
-        message: "100 puan başarıyla kullanıldı!",
-        redemptionCode: redemptionCode,
-        remainingPoints: loyalty.points,
-        instructions: "Aşağıdaki kodu veya QR kodu işletme yetkilisine gösterin. Ayrıca işletmeye bilgilendirme e-postası gönderilmiştir."
+    res.json({
+      message: "100 puan başarıyla kullanıldı!",
+      redemptionCode: redemptionCode,
+      remainingPoints: loyalty.points,
+      instructions: "Aşağıdaki kodu veya QR kodu işletme yetkilisine gösterin. Ayrıca işletmeye bilgilendirme e-postası gönderilmiştir."
     });
   } catch (error) {
     res.status(500).json({ message: "Puan kullanılamadı", error: error.message });

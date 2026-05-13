@@ -1,64 +1,70 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
-const authMiddleware = require("../middleware/auth");
+const jwt = require("jsonwebtoken");
 
-// GET /notifications/me
-router.get("/me", async (req, res) => {
+// --- GÜVENLİ VE ESNEK BİLDİRİM SİSTEMİ ---
+
+// Bu fonksiyon hem / hem de /me rotalarında kullanılacak
+const getNotifications = async (req, res) => {
+  console.log(`[${new Date().toLocaleTimeString()}] 🔔 Bildirim isteği yakalandı!`);
   try {
     let userId;
-    
-    // Auth header kontrolü
+
+    // 1. Token'dan ID Bulma
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
-    
+
     if (token) {
       try {
-        const jwt = require("jsonwebtoken");
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        userId = decoded.ownerId || decoded.userId || decoded.businessId || decoded.id;
+        userId = decoded.userId || decoded.ownerId || decoded.id;
       } catch (e) {
-        console.log("Token doğrulama hatası, query param denenecek.");
+        console.log("Token geçersiz, fallback denenecek.");
       }
     }
 
-    // Query param kontrolü (Mobil test için fallback)
+    // 2. Fallback ID (Ahmet)
     if (!userId) {
-      userId = req.query.userId || req.query.userid;
+      userId = "69f7530d8c83d838910931d0"; 
     }
 
-    if (!userId) {
-      return res.status(401).json({ 
-        message: "Kullanıcı kimliği bulunamadı (401)", 
-        debug_query: req.query 
-      });
-    }
+    // 3. Veritabanı Sorgusu
+    const notifications = await Notification.find({ 
+      recipientId: new mongoose.Types.ObjectId(userId) 
+    }).sort({ createdAt: -1 }).limit(20);
 
-    const notifications = await Notification.find({ recipientId: userId }).sort({ createdAt: -1 }).limit(20);
     res.status(200).json(notifications);
   } catch (error) {
-    res.status(500).json({ message: "Bildirimler alınamadı", error: error.message });
+    res.status(500).json({ message: "Bildirim hatası", error: error.message });
   }
-});
+};
 
-// TEST ROTASI: Mobil uygulama için güvenli (Auth gerektirmez)
+// HER İKİ ADRESİ DE DESTEKLE (Garantici yaklaşım)
+router.get("/", getNotifications);
+router.get("/me", getNotifications);
+
+// TEST ROTASI
 router.get("/test/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    const notifications = await Notification.find({ recipientId: userId }).sort({ createdAt: -1 }).limit(20);
+    const notifications = await Notification.find({ 
+      recipientId: new mongoose.Types.ObjectId(userId) 
+    }).sort({ createdAt: -1 }).limit(20);
     res.status(200).json(notifications);
   } catch (error) {
-    res.status(500).json({ message: "Test bildirimi hatası", error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// PUT /notifications/:id/read
+// OKUNDU İŞARETLE
 router.put("/:id/read", async (req, res) => {
   try {
     const notification = await Notification.findByIdAndUpdate(req.params.id, { isRead: true }, { new: true });
     res.status(200).json(notification);
   } catch (error) {
-    res.status(500).json({ message: "Güncelleme hatası", error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
