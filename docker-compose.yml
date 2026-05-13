@@ -44,6 +44,8 @@ services:
       - JWT_SECRET=mb_gizli_anahtar_2024
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://rabbitmq:5672
+      - EMAIL_USER=mbrandev@gmail.com
+      - EMAIL_PASS=anozrumfwhgkxiqx
     depends_on:
       - mongodb
       - redis

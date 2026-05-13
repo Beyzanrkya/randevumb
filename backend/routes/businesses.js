@@ -99,7 +99,8 @@ router.post("/register", async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      verificationCode
+      verificationCode,
+      isVerified: true
     });
 
     const savedOwner = await newOwner.save();
