@@ -4,7 +4,6 @@ services:
   # 1. MongoDB (Veritabanı Kapsayıcısı)
   mongodb:
     image: mongo:latest
-    container_name: mongodb_kapsayici
     restart: always
     ports:
       - "27017:27017"
@@ -16,7 +15,6 @@ services:
   # 2. Redis (Önbellekleme Kapsayıcısı)
   redis:
     image: redis:alpine
-    container_name: redis_kapsayici
     restart: always
     ports:
       - "6379:6379"
@@ -28,7 +26,6 @@ services:
   # 3. RabbitMQ (Mesaj Kuyruğu Kapsayıcısı)
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbitmq_kapsayici
     restart: always
     ports:
       - "5672:5672"
@@ -39,7 +36,6 @@ services:
   # 4. Backend (REST API Kapsayıcısı)
   backend:
     build: ./backend
-    container_name: backend_kapsayici
     restart: always
     ports:
       - "5000:5000"
@@ -58,7 +54,6 @@ services:
   # 5. Frontend (Web Kapsayıcısı)
   frontend:
     build: ./frontend
-    container_name: web_frontend_kapsayici
     restart: always
     ports:
       - "3000:3000"
@@ -69,7 +64,9 @@ services:
 
   # 6. Jenkins (CI/CD Kapsayıcısı)
   jenkins:
-    image: jenkins/jenkins:lts
+    build:
+      context: .
+      dockerfile: jenkins.Dockerfile
     container_name: jenkins_kapsayici
     privileged: true
     user: root
