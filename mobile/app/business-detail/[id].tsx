@@ -159,9 +159,52 @@ export default function BusinessDetail() {
 
         <View style={styles.reviewsSection}>
           <Text style={styles.sectionTitle}>Değerlendirmeler</Text>
+
+          {/* Yorum Yapma Kutusu */}
+          <View style={styles.addReviewBox}>
+            <Text style={styles.addReviewTitle}>Deneyiminizi Paylaşın</Text>
+            <View style={styles.starRow}>
+              {[1, 2, 3, 4, 5].map((num) => (
+                <TouchableOpacity key={num} onPress={() => setUserRating(num)}>
+                  <Ionicons 
+                    name={userRating >= num ? "star" : "star-outline"} 
+                    size={28} 
+                    color={userRating >= num ? "#EAB308" : theme.border} 
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Hizmet hakkında ne düşünüyorsunuz?..."
+              placeholderTextColor={theme.subText}
+              value={userComment}
+              onChangeText={setUserComment}
+              multiline
+            />
+            <TouchableOpacity 
+              style={[styles.submitButton, isSubmitting && { opacity: 0.7 }]} 
+              onPress={handleSubmitReview}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text style={styles.submitButtonText}>Yorumu Gönder</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
           {reviews.map((review: any) => (
             <View key={review._id} style={styles.reviewCard}>
-              <Text style={styles.reviewUserName}>{review.customerId?.name || 'Müşteri'}</Text>
+              <View style={styles.reviewHeader}>
+                <Text style={styles.reviewUserName}>{review.customerId?.name || 'Müşteri'}</Text>
+                <View style={styles.reviewStars}>
+                  {[...Array(5)].map((_, i) => (
+                    <Ionicons key={i} name="star" size={12} color={i < review.rating ? "#EAB308" : theme.border} />
+                  ))}
+                </View>
+              </View>
               <Text style={styles.reviewComment}>{review.comment}</Text>
             </View>
           ))}
@@ -213,8 +256,16 @@ const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
   servicePrice: { fontWeight: '800', color: theme.text },
   reviewsSection: { padding: 25 },
   reviewCard: { backgroundColor: theme.card, padding: 15, borderRadius: 15, marginBottom: 10, borderWidth: 1, borderColor: theme.border },
-  reviewUserName: { fontWeight: '700', color: theme.text, marginBottom: 5 },
-  reviewComment: { color: theme.subText },
+  reviewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 },
+  reviewStars: { flexDirection: 'row', gap: 2 },
+  reviewUserName: { fontWeight: '700', color: theme.text },
+  reviewComment: { color: theme.subText, fontSize: 14 },
+  addReviewBox: { backgroundColor: theme.card, padding: 20, borderRadius: 20, marginBottom: 25, borderWidth: 1, borderColor: theme.primary + '30', shadowColor: theme.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 3 },
+  addReviewTitle: { fontSize: 16, fontWeight: '700', color: theme.text, marginBottom: 15 },
+  starRow: { flexDirection: 'row', gap: 10, marginBottom: 15 },
+  commentInput: { backgroundColor: theme.inputBg, borderRadius: 15, padding: 15, color: theme.text, minHeight: 80, textAlignVertical: 'top', marginBottom: 15, borderWidth: 1, borderColor: theme.border },
+  submitButton: { backgroundColor: theme.primary, padding: 15, borderRadius: 15, alignItems: 'center' },
+  submitButtonText: { color: '#fff', fontWeight: '700', fontSize: 15 },
   footer: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: theme.card, padding: 20, borderTopWidth: 1, borderTopColor: theme.border },
   bookButton: { backgroundColor: theme.secondary, padding: 18, borderRadius: 15, alignItems: 'center' },
   bookButtonText: { color: '#fff', fontWeight: '700', fontSize: 16 }

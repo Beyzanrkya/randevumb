@@ -196,42 +196,6 @@ export default function BusinessDashboard() {
         </TouchableOpacity>
       </View>
 
-      <Modal visible={showNotifications} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.notifContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Bildirimler</Text>
-              <TouchableOpacity onPress={() => setShowNotifications(false)}>
-                <Ionicons name="close" size={28} color={theme.text} />
-              </TouchableOpacity>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {notifications.length > 0 ? (
-                notifications.map((n) => (
-                  <TouchableOpacity
-                    key={n._id}
-                    style={[styles.notifItem, !n.isRead && styles.notifUnread]}
-                    onPress={() => markAsRead(n._id)}
-                  >
-                    <View style={[styles.notifIcon, { backgroundColor: n.isRead ? theme.border : theme.primary + '20' }]}>
-                      <Ionicons name="notifications" size={20} color={n.isRead ? theme.subText : theme.primary} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.notifText, !n.isRead && { fontWeight: '700' }]}>{n.message}</Text>
-                      <Text style={styles.notifDate}>{new Date(n.createdAt).toLocaleDateString('tr-TR')} {new Date(n.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))
-              ) : (
-                <View style={{ alignItems: 'center', marginTop: 50 }}>
-                  <Ionicons name="notifications-off-outline" size={60} color={theme.border} />
-                  <Text style={{ color: theme.subText, marginTop: 10 }}>Henüz bildiriminiz yok.</Text>
-                </View>
-              )}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -414,6 +378,47 @@ export default function BusinessDashboard() {
                 <Text style={styles.confirmRejectBtnText}>Reddet</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showNotifications} transparent animationType="slide" onRequestClose={() => setShowNotifications(false)}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={() => setShowNotifications(false)} />
+          <View style={styles.notifContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Bildirimler</Text>
+              <TouchableOpacity onPress={() => setShowNotifications(false)}>
+                <Ionicons name="close-circle" size={32} color={theme.primary} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+              {notifications.length > 0 ? (
+                notifications.map((n) => (
+                  <TouchableOpacity
+                    key={n._id}
+                    style={[styles.notifItem, !n.isRead && styles.notifUnread]}
+                    onPress={() => markAsRead(n._id)}
+                  >
+                    <View style={[styles.notifIcon, { backgroundColor: n.isRead ? theme.border : theme.primary + '20' }]}>
+                      <Ionicons name="notifications" size={20} color={n.isRead ? theme.subText : theme.primary} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.notifText, !n.isRead && { fontWeight: '700', color: theme.text }]}>{n.message}</Text>
+                      <Text style={styles.notifDate}>{new Date(n.createdAt).toLocaleDateString('tr-TR')} {new Date(n.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View style={{ alignItems: 'center', marginTop: 80 }}>
+                  <View style={{ backgroundColor: theme.border + '30', padding: 30, borderRadius: 50, marginBottom: 20 }}>
+                    <Ionicons name="notifications-off" size={80} color={theme.primary} />
+                  </View>
+                  <Text style={{ color: theme.text, fontSize: 18, fontWeight: '700' }}>Henüz Bildirim Yok</Text>
+                  <Text style={{ color: theme.subText, marginTop: 8, textAlign: 'center', paddingHorizontal: 40 }}>Müşterileriniz randevu aldığında burada bildirim göreceksiniz.</Text>
+                </View>
+              )}
+            </ScrollView>
           </View>
         </View>
       </Modal>

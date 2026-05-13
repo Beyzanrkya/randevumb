@@ -67,35 +67,41 @@ router.post("/", async (req, res) => {
         return;
       }
 
-      // 1. Müşteriye bildir (Uygulama içi) - EN ÖNEMLİSİ
+      // 1. Müşteriye bildir (Uygulama içi ve Email)
       try {
         await new Notification({
           recipientId: newAppointment.customerId,
           recipientModel: "Customer",
-          message: `Randevu Başarılı: ${business.name} işletmesinden ${date} ${time} saatine randevu aldınız. Onay bekleniyor.`
+          message: `Randevu Talebi Alındı: ${business.name} işletmesinde ${date} günü saat ${time} için randevunuz oluşturuldu. İşletme onayı bekleniyor.`
         }).save();
-        console.log("Müşteri bildirimi kaydedildi.");
+
+        if (customer && customer.email) {
+          await mailer.sendAppointmentEmail(customer.email, {
+            type: 'booking_confirmation',
+            customerName: customer.name,
+            businessName: business.name,
+            date: date,
+            time: time,
+            serviceName: service ? service.name : ''
+          });
+        }
+        console.log("Müşteri bildirimi ve maili gönderildi.");
       } catch (e) {
-        console.error("Müşteri bildirimi oluşturulamadı:", e.message);
+        console.error("Müşteri bildirim/mail hatası:", e.message);
       }
 
       if (business.ownerId) {
         const owner = await BusinessOwner.findById(business.ownerId);
 
-        // Uygulama içi bildirim
+        // 2. İşletme Sahibine bildir (Uygulama içi ve Email)
         try {
           await new Notification({
             recipientId: business.ownerId,
             recipientModel: "BusinessOwner",
-            message: `Yeni Randevu Talebi: ${customer ? customer.name : 'Bir müşteri'}, ${service ? service.name : 'bir hizmet'} için ${date} ${time} tarihine randevu almak istiyor.`
+            message: `Yeni Randevu! ${customer ? customer.name : 'Bir müşteri'}, ${date} saat ${time} için ${service ? service.name : 'bir hizmet'} randevusu aldı.`
           }).save();
-        } catch (e) {
-          console.error("İşletme sahibi bildirimi oluşturulamadı:", e.message);
-        }
 
-        // Email bildirimi
-        if (owner && owner.email) {
-          try {
+          if (owner && owner.email) {
             await mailer.sendAppointmentEmail(owner.email, {
               type: 'new_to_business',
               customerName: customer ? customer.name : 'Bir müşteri',
@@ -104,9 +110,10 @@ router.post("/", async (req, res) => {
               time: time,
               serviceName: service ? service.name : ''
             });
-          } catch (e) {
-            console.error("İşletme sahibi maili gönderilemedi:", e.message);
           }
+          console.log("İşletme bildirimi ve maili gönderildi.");
+        } catch (e) {
+          console.error("İşletme bildirim/mail hatası:", e.message);
         }
       }
     } catch (globalNotifErr) {

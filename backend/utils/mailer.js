@@ -80,6 +80,12 @@ exports.sendAppointmentEmail = async (email, details) => {
       title = 'Yeni Bir Randevunuz Var';
       message = `Sayın işletme sahibi, <b>${details.customerName}</b> isimli müşteriniz <b>${details.date}</b> tarihinde saat <b>${details.time}</b> için bir randevu talebi oluşturdu.`;
       break;
+    case 'booking_confirmation':
+      subject = 'Randevunuz Alındı - Onay Bekleniyor';
+      title = 'Randevu Talebiniz Alındı';
+      message = `Sayın <b>${details.customerName}</b>, <b>${details.businessName}</b> işletmesindeki <b>${details.date}</b> tarihli ve <b>${details.time}</b> saatli randevu talebiniz sisteme ulaşmıştır. İşletme onayladığında size tekrar bilgi verilecektir.`;
+      color = "#1E2A40";
+      break;
     case 'status_update':
       subject = `Randevunuz Hakkında Güncelleme: ${details.statusText}`;
       title = `Randevu Durumu: ${details.statusText}`;
