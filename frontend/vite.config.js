@@ -8,7 +8,7 @@ export default defineConfig({
     host: true, // Ağdaki diğer cihazlardan erişime izin verir
     proxy: {
       '/api': {
-        target: 'http://backend_kapsayici:5000',
+        target: 'http://backend:5000',
         changeOrigin: true
       }
     }
@@ -18,7 +18,7 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://backend_kapsayici:5000',
+        target: 'http://backend:5000',
         changeOrigin: true
       }
     }
