@@ -57,7 +57,7 @@ services:
     restart: always
     ports:
       - "3000:3000"
-    command: npm run dev -- --host --port 3000
+    command: npx vite --host --port 3000
     depends_on:
       - backend
     networks:
