@@ -11,7 +11,7 @@ openapi: 3.0.3
 info:
   title: MBrandev Appointment API
   description: |
-    MBrandev çok kategorili randevu sistemi için REST API yapıldı.
+    MB  randev çok kategorili randevu sistemi için REST API yapıldı.
 
     ## Özellikler:
     - Müşteri hesap yönetimi
