@@ -8,16 +8,21 @@ const authMiddleware = require("../middleware/auth");
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const { businessId, appointmentId, rating, comment } = req.body;
-    const rawCustomerId = req.user.userId || req.body.customerId;
+    // authMiddleware'den gelen 'id' veya 'userId' değerini kullan
+    const rawCustomerId = req.user.id || req.user.userId || req.body.customerId;
 
     if (!businessId || !rating || !comment) {
       return res.status(400).json({ message: "Eksik veri gönderildi (İşletme, Puan ve Yorum zorunludur)" });
     }
 
+    if (!rawCustomerId) {
+      return res.status(400).json({ message: "Kullanıcı bilgisi bulunamadı. Lütfen tekrar giriş yapın." });
+    }
+
     const newReview = new Review({
       customerId: new mongoose.Types.ObjectId(rawCustomerId),
       businessId: new mongoose.Types.ObjectId(businessId),
-      appointmentId: new mongoose.Types.ObjectId(appointmentId),
+      appointmentId: appointmentId ? new mongoose.Types.ObjectId(appointmentId) : undefined,
       rating,
       comment
     });
