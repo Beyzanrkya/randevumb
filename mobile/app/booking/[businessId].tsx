@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import api from '../../constants/Api';
+import * as SecureStore from 'expo-secure-store';
 
 export default function BookingScreen() {
   const { businessId, serviceId } = useLocalSearchParams();
@@ -47,8 +48,18 @@ export default function BookingScreen() {
 
     try {
       setLoading(true);
+      
+      // Gerçek kullanıcı ID'sini al
+      let customerId = "69f7530d8c83d838910931d0"; // Fallback
+      try {
+        const storedId = await SecureStore.getItemAsync('userId');
+        if (storedId) customerId = storedId;
+      } catch (e) {
+        console.log("ID okunamadı, fallback kullanılıyor");
+      }
+
       const bookingData = {
-        customerId: "69f7530d8c83d838910931d0", // Ahmet ID
+        customerId: customerId,
         businessId: businessId,
         serviceId: serviceId,
         date: selectedDate,

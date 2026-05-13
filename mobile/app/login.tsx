@@ -38,6 +38,9 @@ export default function LoginScreen() {
       if (response.data.token) {
         await SecureStore.setItemAsync('userToken', response.data.token);
         await SecureStore.setItemAsync('userRole', 'customer');
+        if (response.data.customerId) {
+          await SecureStore.setItemAsync('userId', response.data.customerId);
+        }
         Alert.alert('Giriş Başarılı', `Hoş geldiniz, ${response.data.customerName || 'Müşterimiz'}!`);
         router.replace('/customer-dashboard');
       }

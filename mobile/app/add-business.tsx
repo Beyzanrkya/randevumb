@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import api from '../constants/Api';
+import * as SecureStore from 'expo-secure-store';
 
 const testOwnerId = "69f754fa8c83d83891093216"; 
 
@@ -40,7 +41,17 @@ export default function AddBusiness() {
 
     try {
       setLoading(true);
-      const payload = { ...form, ownerId: testOwnerId };
+
+      // Gerçek Owner ID'sini al
+      let ownerId = testOwnerId;
+      try {
+        const storedId = await SecureStore.getItemAsync('ownerId');
+        if (storedId) ownerId = storedId;
+      } catch (e) {
+        console.log("Owner ID okunamadı");
+      }
+
+      const payload = { ...form, ownerId: ownerId };
       await api.post('/businesses', payload);
       
       Alert.alert('Başarılı', 'Yeni işletmeniz anında oluşturuldu! 🎉', [

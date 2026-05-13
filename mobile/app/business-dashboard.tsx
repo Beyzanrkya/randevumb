@@ -28,6 +28,9 @@ export default function BusinessDashboard() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [newDate, setNewDate] = useState('');
+  const [newTime, setNewTime] = useState('');
 
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -43,7 +46,8 @@ export default function BusinessDashboard() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get('/notifications');
+      // Sadece bu dükkanın bildirimlerini çek
+      const response = await api.get(`/notifications?businessId=${businessId}`);
       setNotifications(response.data);
     } catch (error: any) {
       console.error("Bildirimler çekilemedi:", error.response?.data || error.message);
@@ -111,10 +115,26 @@ export default function BusinessDashboard() {
       await api.put(`/appointments/${appointmentId}`, { status: newStatus, note });
       Alert.alert('Başarılı', 'Durum güncellendi.');
       setShowRejectModal(false);
+      setShowRescheduleModal(false);
       setRejectReason('');
       fetchData();
     } catch (error) {
       Alert.alert('Hata', 'İşlem başarısız.');
+    }
+  };
+
+  const handleReschedule = async () => {
+    if (!newDate || !newTime) {
+      Alert.alert('Hata', 'Lütfen tarih ve saat girin.');
+      return;
+    }
+    try {
+      await api.put(`/appointments/${selectedAppId}`, { date: newDate, time: newTime });
+      Alert.alert('Başarılı', 'Randevu zamanı güncellendi ve müşteriye bildirildi.');
+      setShowRescheduleModal(false);
+      fetchData();
+    } catch (error) {
+      Alert.alert('Hata', 'Güncelleme başarısız.');
     }
   };
 
@@ -246,6 +266,12 @@ export default function BusinessDashboard() {
                   item={item}
                   onAction={handleUpdateStatus}
                   onReject={confirmReject}
+                  onReschedule={(app: any) => {
+                    setSelectedAppId(app._id);
+                    setNewDate(app.date);
+                    setNewTime(app.time);
+                    setShowRescheduleModal(true);
+                  }}
                   theme={theme}
                 />
               ))}
@@ -353,6 +379,51 @@ export default function BusinessDashboard() {
         </View>
       </ScrollView>
 
+      {/* Reschedule Modal */}
+      <Modal visible={showRescheduleModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.rejectModalContent}>
+            <Text style={styles.modalTitle}>Randevu Zamanını Güncelle</Text>
+            <Text style={styles.modalSubTitle}>Yeni tarih ve saati belirleyin. Müşteriye anında bilgi verilecektir.</Text>
+            
+            <View style={{ gap: 15, marginBottom: 20 }}>
+              <View>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.subText, marginBottom: 5 }}>Tarih</Text>
+                <TextInput
+                  style={styles.dateInput}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor={theme.subText}
+                  value={newDate}
+                  onChangeText={setNewDate}
+                />
+              </View>
+              <View>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.subText, marginBottom: 5 }}>Saat</Text>
+                <TextInput
+                  style={styles.dateInput}
+                  placeholder="HH:MM"
+                  placeholderTextColor={theme.subText}
+                  value={newTime}
+                  onChangeText={setNewTime}
+                />
+              </View>
+            </View>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowRescheduleModal(false)}>
+                <Text style={styles.cancelBtnText}>Vazgeç</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.confirmRejectBtn, { backgroundColor: theme.primary }]}
+                onPress={handleReschedule}
+              >
+                <Text style={styles.confirmRejectBtnText}>Güncelle</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Reject Reason Modal */}
       <Modal visible={showRejectModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
@@ -443,7 +514,7 @@ const TabItem = ({ id, label, icon, activeTab, setActiveTab, theme }: any) => (
   </TouchableOpacity>
 );
 
-const AppointmentCard = ({ item, onAction, onReject, theme }: any) => {
+const AppointmentCard = ({ item, onAction, onReject, onReschedule, theme }: any) => {
   const isPending = item.status === 'pending';
   const isConfirmed = item.status === 'confirmed';
 
@@ -462,6 +533,10 @@ const AppointmentCard = ({ item, onAction, onReject, theme }: any) => {
         <Text style={styles3.appTime}>{item.date} | {item.time}</Text>
       </View>
       <View style={styles3.appActions}>
+        <TouchableOpacity style={styles3.rescheduleBtn} onPress={() => onReschedule(item)}>
+          <Ionicons name="time-outline" size={18} color={theme.primary} />
+        </TouchableOpacity>
+        
         {isPending && (
           <>
             <TouchableOpacity style={styles3.rejectBtn} onPress={() => onReject(item._id)}>
@@ -511,7 +586,8 @@ const styles3 = StyleSheet.create({
   appActions: { flexDirection: 'row', gap: 8 },
   approveBtn: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' },
   completeBtn: { height: 36, paddingHorizontal: 12, borderRadius: 10, backgroundColor: '#8B5CF6', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  rejectBtn: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#EF444430', justifyContent: 'center', alignItems: 'center' }
+  rejectBtn: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#EF444430', justifyContent: 'center', alignItems: 'center' },
+  rescheduleBtn: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#64748B30', justifyContent: 'center', alignItems: 'center' }
 });
 
 const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
@@ -543,6 +619,7 @@ const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
   cancelBtnText: { fontWeight: '700', color: theme.text },
   confirmRejectBtn: { flex: 2, padding: 16, borderRadius: 15, alignItems: 'center', backgroundColor: '#EF4444' },
   confirmRejectBtnText: { fontWeight: '800', color: '#fff' },
+  dateInput: { backgroundColor: theme.background, borderRadius: 15, padding: 12, color: theme.text, borderWidth: 1, borderColor: theme.border },
   statsRow: { flexDirection: 'row', backgroundColor: theme.card, margin: 20, borderRadius: 25, borderWidth: 1, borderColor: theme.border },
   tabContainer: { flexDirection: 'row', paddingHorizontal: 10, borderBottomWidth: 1, borderBottomColor: theme.border },
   contentArea: { padding: 20 },

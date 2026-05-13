@@ -4,15 +4,17 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import api from '../constants/Api';
+import * as SecureStore from 'expo-secure-store';
 
-const testCustomerId = "69f7530d8c83d838910931d0"; // Ahmet ID
+const testCustomerId = "69f7530d8c83d838910931d0"; // Fallback/Test ID
 
 export default function MyAppointments() {
   const { theme, isDark } = useTheme();
   const router = useRouter();
-  const [appointments, setAppointments] = useState<any[]>([]); // never[] hatası fix
+  const [appointments, setAppointments] = useState<any[]>([]); 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAppointments();
@@ -22,10 +24,22 @@ export default function MyAppointments() {
     try {
       setLoading(true);
       setErrorMsg(null);
-      const response = await api.get('/appointments');
+      
+      // Gerçek kullanıcı ID'sini al
+      let userId = testCustomerId;
+      try {
+        const storedId = await SecureStore.getItemAsync('userId');
+        if (storedId) {
+          userId = storedId;
+          setCurrentUserId(storedId);
+        }
+      } catch (e) {
+        console.log("ID okunamadı");
+      }
 
-      // Tüm randevuları çekiyoruz, frontend'de Ahmet'in olanları ve diğerlerini ayırabiliriz
-      const data = Array.isArray(response.data) ? response.data : [];
+      const response = await api.get(`/appointments?customerId=${userId}`);
+      const data = Array.isArray(response.data.appointments) ? response.data.appointments : 
+                   (Array.isArray(response.data) ? response.data : []);
       setAppointments(data);
     } catch (error) {
       console.error("Hata:", error);
@@ -76,10 +90,10 @@ export default function MyAppointments() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {appointments.map((item: any) => {
             const status = getStatusInfo(item.status);
-            const isAhmet = item.customerId?._id === testCustomerId || item.customerId === testCustomerId;
+            const isMe = item.customerId?._id === currentUserId || item.customerId === currentUserId;
 
             return (
-              <View key={item._id} style={[styles.appointmentCard, isAhmet && styles.ahmetCard]}>
+              <View key={item._id} style={[styles.appointmentCard, isMe && styles.ahmetCard]}>
                 <View style={styles.cardHeader}>
                   <View style={styles.businessInfo}>
                     <Text style={styles.businessName}>{item.businessId?.name || "İşletme"}</Text>
@@ -96,9 +110,9 @@ export default function MyAppointments() {
                     <Ionicons name="calendar-outline" size={16} color={theme.subText} />
                     <Text style={styles.dateText}>{item.date} | {item.time}</Text>
                   </View>
-                  {isAhmet && (
+                  {isMe && (
                     <View style={styles.userBadge}>
-                      <Text style={styles.userBadgeText}>Sizin Randevunuz</Text>
+                      <Text style={styles.userBadgeText}>Randevunuz</Text>
                     </View>
                   )}
                 </View>

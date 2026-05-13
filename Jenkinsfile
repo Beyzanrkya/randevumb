@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('* * * * *')
+    }
+
     environment {
         DOCKER_COMPOSE_COMMAND = "docker compose"
     }

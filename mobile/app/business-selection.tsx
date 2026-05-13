@@ -7,8 +7,7 @@ import api from '../constants/Api';
 
 const { width } = Dimensions.get('window');
 
-// Test için senin gerçek Business Owner ID'ni kullanıyoruz
-const testOwnerId = "69f754fa8c83d83891093216";
+
 
 export default function BusinessSelection() {
   const { theme, isDark } = useTheme();
@@ -23,11 +22,8 @@ export default function BusinessSelection() {
   const fetchMyBusinesses = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/businesses');
-      const myBusinesses = response.data.filter((b: any) =>
-        b.ownerId === testOwnerId || b.ownerId?._id === testOwnerId
-      );
-      setBusinesses(myBusinesses);
+      const response = await api.get('/businesses/my-businesses');
+      setBusinesses(response.data);
     } catch (error) {
       console.error("İşletmeler çekilemedi:", error);
     } finally {

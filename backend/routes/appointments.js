@@ -93,16 +93,23 @@ router.post("/", async (req, res) => {
       if (business.ownerId) {
         const owner = await BusinessOwner.findById(business.ownerId);
 
-        // 2. İşletme Sahibine bildir (Uygulama içi ve Email)
+        // 2. İşletme Sahibine ve İşletme Mailine bildir
         try {
+          // Uygulama içi bildirim (Sahibine - Dükkan bazlı)
           await new Notification({
             recipientId: business.ownerId,
             recipientModel: "BusinessOwner",
+            businessId: business._id,
             message: `Yeni Randevu! ${customer ? customer.name : 'Bir müşteri'}, ${date} saat ${time} için ${service ? service.name : 'bir hizmet'} randevusu aldı.`
           }).save();
 
-          if (owner && owner.email) {
-            await mailer.sendAppointmentEmail(owner.email, {
+          // Email Gönderimi (Hem sahibine hem işletmeye)
+          const targetEmails = [];
+          if (owner && owner.email) targetEmails.push(owner.email);
+          if (business.email && business.email !== owner?.email) targetEmails.push(business.email);
+
+          for (const email of targetEmails) {
+            await mailer.sendAppointmentEmail(email, {
               type: 'new_to_business',
               customerName: customer ? customer.name : 'Bir müşteri',
               businessName: business.name,
@@ -111,7 +118,8 @@ router.post("/", async (req, res) => {
               serviceName: service ? service.name : ''
             });
           }
-          console.log("İşletme bildirimi ve maili gönderildi.");
+          
+          console.log(`İşletme bildirimi ve ${targetEmails.length} adrese mail gönderildi.`);
         } catch (e) {
           console.error("İşletme bildirim/mail hatası:", e.message);
         }
@@ -129,7 +137,7 @@ router.post("/", async (req, res) => {
 // Randevu durumu güncelleme (İptal vs)
 router.put("/:id", async (req, res) => {
   try {
-    const { status, note } = req.body;
+    const { status, note, date, time } = req.body;
     const appointment = await Appointment.findById(req.params.id);
 
     if (!appointment) {
@@ -137,7 +145,18 @@ router.put("/:id", async (req, res) => {
     }
 
     const oldStatus = appointment.status;
+    const oldDate = appointment.date || "Belirtilmemiş";
+    const oldTime = appointment.time || "Belirtilmemiş";
+
+    console.log(`🔄 Güncelleme Öncesi: ${oldDate} ${oldTime}`);
+    console.log(`📥 Gelen Yeni Veri: Date: ${date}, Time: ${time}`);
+
     if (note !== undefined) appointment.note = note;
+    if (date !== undefined) appointment.date = date;
+    if (time !== undefined) appointment.time = time;
+
+    const isDateTimeChanged = (date !== undefined && date !== oldDate) || (time !== undefined && time !== oldTime);
+    console.log(`❓ Zaman Değişti mi: ${isDateTimeChanged}`);
 
     let pointsMessage = "";
 
@@ -150,57 +169,72 @@ router.put("/:id", async (req, res) => {
       );
       appointment.pointsAwarded = true;
       pointsMessage = " 🎉 Tebrikler! Bu randevudan 10 sadakat puanı kazandınız!";
+      console.log(`✅ Puan Verildi: Müşteri ${appointment.customerId}, İşletme ${appointment.businessId}, Yeni Puan: ${loyalty.points}`);
     }
 
     appointment.status = status;
     const updated = await appointment.save();
 
     // --- BİLDİRİM VE MAİL SİSTEMİ ---
-    if (oldStatus !== status) {
+    if (oldStatus !== status || isDateTimeChanged) {
       try {
         const business = await Business.findById(appointment.businessId);
         const customer = await Customer.findById(appointment.customerId);
 
         if (!business) {
           console.error("Hata: İşletme bulunamadı, durum bildirimi gönderilemez.");
-          return res.json({ message: "Durum güncellendi ancak bildirim gönderilemedi", appointment: updated });
+          return res.json({ message: "Güncellendi ancak bildirim gönderilemedi", appointment: updated });
         }
 
         let statusText = status === 'confirmed' ? 'onaylandı' :
           status === 'cancelled' ? 'reddedildi/iptal edildi' :
             status === 'completed' ? 'tamamlandı' : status;
 
-        // --- RABBITMQ İLE BİLDİRİMİ KUYRUĞA AT (Hoca İsteği 3) ---
+        const bName = business?.name || "İşletme";
+        const newD = appointment.date || date || "Bilinmiyor";
+        const newT = appointment.time || time || "Bilinmiyor";
+        
+        let message = `Randevu Durumu: ${bName} için ${newD} tarihindeki randevunuz ${statusText}.${pointsMessage}`;
+        
+        if (status === 'cancelled' && appointment.note) {
+          message = `Randevu İptal: ${bName} işletmesindeki randevunuz iptal edildi. Sebep: ${appointment.note}`;
+        }
+
+        if (isDateTimeChanged && oldStatus === status) {
+          message = `Randevu Güncellemesi: ${bName} işletmesindeki randevunuz ${oldDate} ${oldTime} vaktinden ${newD} ${newT} vaktine alınmıştır.`;
+        }
+
+        console.log(`📢 Giden Bildirim Mesajı: ${message}`);
+
+        // --- RABBITMQ İLE BİLDİRİMİ KUYRUĞA AT ---
         if (amqpChannel) {
           const notificationData = {
             recipientId: appointment.customerId,
             recipientModel: "Customer",
-            message: `Randevu Durumu: ${business ? business.name : 'İşletme'} için ${appointment.date} tarihindeki randevunuz ${statusText}.${pointsMessage}`
+            message: message
           };
           
           amqpChannel.assertQueue("notifications_queue", { durable: true });
           amqpChannel.sendToQueue("notifications_queue", Buffer.from(JSON.stringify(notificationData)));
-          console.log("🐰 [RabbitMQ] Bildirim kuyruğa gönderildi");
         } else {
-          // Fallback: Eğer RabbitMQ bağlı değilse normal kaydet
           await new Notification({
             recipientId: appointment.customerId,
             recipientModel: "Customer",
-            message: `Randevu Durumu: ${business ? business.name : 'İşletme'} için ${appointment.date} tarihindeki randevunuz ${statusText}.${pointsMessage}`
+            message: message
           }).save();
         }
 
         // Müşteriye bildir (Email)
         if (customer && customer.email) {
           await mailer.sendAppointmentEmail(customer.email, {
-            type: 'status_update',
+            type: isDateTimeChanged ? 'rescheduled' : 'status_update',
             status: status,
             statusText: statusText,
             customerName: customer.name,
             businessName: business ? business.name : 'MBrandev İşletmesi',
             date: appointment.date,
             time: appointment.time,
-            extraMessage: pointsMessage // Puan bilgisini maile ekle
+            extraMessage: pointsMessage 
           });
         }
       } catch (notifErr) {

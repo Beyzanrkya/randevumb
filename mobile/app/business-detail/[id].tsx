@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import api from '../../constants/Api';
+import * as SecureStore from 'expo-secure-store';
 
 const { width } = Dimensions.get('window');
 
@@ -22,6 +23,8 @@ export default function BusinessDetail() {
   const [userRating, setUserRating] = useState(5);
   const [userComment, setUserComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -30,7 +33,14 @@ export default function BusinessDetail() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const testCustomerId = "69f7530d8c83d8389109310";
+      let userId = "69f7530d8c83d838910931d0";
+      try {
+        const storedId = await SecureStore.getItemAsync('userId');
+        if (storedId) {
+          userId = storedId;
+          setCurrentUserId(storedId);
+        }
+      } catch (e) {}
 
       const [bRes, sRes, rRes] = await Promise.all([
         api.get(`/businesses/${id}`),
@@ -39,9 +49,8 @@ export default function BusinessDetail() {
       ]);
 
       try {
-        const lRes = await api.get(`/loyalty/debug/${id}`);
-        const userLoyalty = lRes.data.records.find((r: any) => r.customerId._id === testCustomerId);
-        setLoyalty(userLoyalty || { points: 0 });
+        const lRes = await api.get(`/loyalty/business/${id}`);
+        setLoyalty(lRes.data || { points: 0 });
       } catch (e) {
         setLoyalty({ points: 0 });
       }
@@ -68,13 +77,20 @@ export default function BusinessDetail() {
         businessId: id,
         rating: userRating,
         comment: userComment,
-        customerId: "69f7530d8c83d838910931d0"
+        customerId: currentUserId || "69f7530d8c83d838910931d0"
       };
 
-      await api.post('/reviews', reviewData);
-      Alert.alert('Başarılı', 'Değerlendirmeniz paylaşıldı.');
+      if (editingReviewId) {
+        await api.put(`/reviews/${editingReviewId}`, reviewData);
+        Alert.alert('Başarılı', 'Yorumunuz güncellendi.');
+      } else {
+        await api.post('/reviews', reviewData);
+        Alert.alert('Başarılı', 'Değerlendirmeniz paylaşıldı.');
+      }
+
       setUserComment('');
       setUserRating(5);
+      setEditingReviewId(null);
 
       const rRes = await api.get(`/reviews/business/${id}`);
       setReviews(rRes.data);
@@ -85,6 +101,38 @@ export default function BusinessDetail() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    Alert.alert(
+      'Yorumu Sil',
+      'Bu yorumu silmek istediğinize emin misiniz?',
+      [
+        { text: 'Vazgeç', style: 'cancel' },
+        { 
+          text: 'Sil', 
+          style: 'destructive', 
+          onPress: async () => {
+            try {
+              await api.delete(`/reviews/${reviewId}`);
+              Alert.alert('Başarılı', 'Yorum silindi.');
+              const rRes = await api.get(`/reviews/business/${id}`);
+              setReviews(rRes.data);
+              const bRes = await api.get(`/businesses/${id}`);
+              setBusiness(bRes.data);
+            } catch (e) {
+              Alert.alert('Hata', 'Yorum silinemedi.');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleEditPress = (review: any) => {
+    setEditingReviewId(review._id);
+    setUserComment(review.comment);
+    setUserRating(review.rating);
   };
 
   const getPlaceholderImage = (category: string) => {
@@ -162,7 +210,9 @@ export default function BusinessDetail() {
 
           {/* Yorum Yapma Kutusu */}
           <View style={styles.addReviewBox}>
-            <Text style={styles.addReviewTitle}>Deneyiminizi Paylaşın</Text>
+            <Text style={styles.addReviewTitle}>
+              {editingReviewId ? 'Yorumu Düzenle' : 'Deneyiminizi Paylaşın'}
+            </Text>
             <View style={styles.starRow}>
               {[1, 2, 3, 4, 5].map((num) => (
                 <TouchableOpacity key={num} onPress={() => setUserRating(num)}>
@@ -182,32 +232,69 @@ export default function BusinessDetail() {
               onChangeText={setUserComment}
               multiline
             />
-            <TouchableOpacity 
-              style={[styles.submitButton, isSubmitting && { opacity: 0.7 }]} 
-              onPress={handleSubmitReview}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <ActivityIndicator color="#fff" size="small" />
-              ) : (
-                <Text style={styles.submitButtonText}>Yorumu Gönder</Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity 
+                style={[styles.submitButton, { flex: 1 }, isSubmitting && { opacity: 0.7 }]} 
+                onPress={handleSubmitReview}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Text style={styles.submitButtonText}>
+                    {editingReviewId ? 'Güncelle' : 'Yorumu Gönder'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+              {editingReviewId && (
+                <TouchableOpacity 
+                  style={[styles.submitButton, { backgroundColor: theme.border }]} 
+                  onPress={() => {
+                    setEditingReviewId(null);
+                    setUserComment('');
+                    setUserRating(5);
+                  }}
+                >
+                  <Text style={[styles.submitButtonText, { color: theme.text }]}>Vazgeç</Text>
+                </TouchableOpacity>
               )}
-            </TouchableOpacity>
+            </View>
           </View>
 
-          {reviews.map((review: any) => (
-            <View key={review._id} style={styles.reviewCard}>
-              <View style={styles.reviewHeader}>
-                <Text style={styles.reviewUserName}>{review.customerId?.name || 'Müşteri'}</Text>
-                <View style={styles.reviewStars}>
-                  {[...Array(5)].map((_, i) => (
-                    <Ionicons key={i} name="star" size={12} color={i < review.rating ? "#EAB308" : theme.border} />
-                  ))}
+          {reviews.map((review: any) => {
+            const isMe = review.customerId?._id === currentUserId || review.customerId === currentUserId;
+            return (
+              <View key={review._id} style={styles.reviewCard}>
+                <View style={styles.reviewHeader}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.reviewUserName}>{review.customerId?.name || 'Müşteri'}</Text>
+                    <View style={styles.reviewStars}>
+                      {[...Array(5)].map((_, i) => (
+                        <Ionicons key={i} name="star" size={12} color={i < review.rating ? "#EAB308" : theme.border} />
+                      ))}
+                    </View>
+                  </View>
+                  {isMe && (
+                    <View style={{ flexDirection: 'row', gap: 12 }}>
+                      <TouchableOpacity onPress={() => handleEditPress(review)}>
+                        <Ionicons name="create-outline" size={20} color={theme.primary} />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDeleteReview(review._id)}>
+                        <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
+                <Text style={styles.reviewComment}>{review.comment}</Text>
+                {review.businessReply && (
+                  <View style={styles.replyBox}>
+                    <Text style={styles.replyTitle}>İşletme Yanıtı:</Text>
+                    <Text style={styles.replyText}>{review.businessReply}</Text>
+                  </View>
+                )}
               </View>
-              <Text style={styles.reviewComment}>{review.comment}</Text>
-            </View>
-          ))}
+            );
+          })}
         </View>
       </ScrollView>
 
@@ -268,5 +355,8 @@ const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
   submitButtonText: { color: '#fff', fontWeight: '700', fontSize: 15 },
   footer: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: theme.card, padding: 20, borderTopWidth: 1, borderTopColor: theme.border },
   bookButton: { backgroundColor: theme.secondary, padding: 18, borderRadius: 15, alignItems: 'center' },
-  bookButtonText: { color: '#fff', fontWeight: '700', fontSize: 16 }
+  bookButtonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  replyBox: { marginTop: 12, padding: 12, backgroundColor: isDark ? '#334155' : '#F8FAFC', borderRadius: 10, borderLeftWidth: 3, borderLeftColor: theme.primary },
+  replyTitle: { fontSize: 12, fontWeight: '700', color: theme.primary, marginBottom: 4 },
+  replyText: { fontSize: 13, color: theme.text, fontStyle: 'italic' }
 });

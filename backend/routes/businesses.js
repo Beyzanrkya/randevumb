@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
 // SAHİBİN İŞLETMELERİNİ GETİRME
 router.get("/my-businesses", authMiddleware, async (req, res) => {
   try {
-    const ownerId = req.user.ownerId || req.user.businessId;
+    const ownerId = req.user.id || req.user.ownerId;
     if (!ownerId) return res.status(401).json({ message: "Yetkisiz erişim" });
     const businesses = await Business.find({ ownerId });
     res.status(200).json(businesses);
@@ -317,7 +317,7 @@ router.post("/reset-password", async (req, res) => {
 // POST /businesses
 router.post("/", async (req, res) => {
   try {
-    const { name, email, phone, address, description, categoryId, ownerId: bodyOwnerId } = req.body;
+    const { name, email, phone, address, description, categoryId, category, ownerId: bodyOwnerId } = req.body;
     // Token varsa ordan al, yoksa body'den al (test için)
     const ownerId = req.user?.ownerId || req.user?.businessId || bodyOwnerId;
 
@@ -331,6 +331,16 @@ router.post("/", async (req, res) => {
       });
     }
 
+    // Kategori ID'sini bul (eğer kategori adı gönderilmişse)
+    let finalCategoryId = categoryId;
+    if (!finalCategoryId && category) {
+      const Category = require("../models/Category");
+      const foundCategory = await Category.findOne({ name: category });
+      if (foundCategory) {
+        finalCategoryId = foundCategory._id;
+      }
+    }
+
     const newBusiness = new Business({
       ownerId,
       name,
@@ -338,7 +348,8 @@ router.post("/", async (req, res) => {
       phone,
       address,
       description,
-      categoryId,
+      categoryId: finalCategoryId,
+      category: category // String olarak da sakla
     });
 
     const savedBusiness = await newBusiness.save();
@@ -375,14 +386,25 @@ router.put("/:id", async (req, res) => {
     }
     */
 
-    const { name, email, phone, address, description, categoryId, imageUrl, gallery } = req.body;
+    const { name, email, phone, address, description, categoryId, category, imageUrl, gallery } = req.body;
+
+    // Kategori ID'sini bul (eğer kategori adı gönderilmişse)
+    let finalCategoryId = categoryId || business.categoryId;
+    if (category) {
+      const Category = require("../models/Category");
+      const foundCategory = await Category.findOne({ name: category });
+      if (foundCategory) {
+        finalCategoryId = foundCategory._id;
+      }
+    }
 
     business.name = name || business.name;
     business.email = email || business.email;
     business.phone = phone !== undefined ? phone : business.phone;
     business.address = address !== undefined ? address : business.address;
     business.description = description !== undefined ? description : business.description;
-    business.categoryId = categoryId || business.categoryId;
+    business.categoryId = finalCategoryId;
+    business.category = category || business.category;
     business.imageUrl = imageUrl !== undefined ? imageUrl : business.imageUrl;
     business.gallery = gallery !== undefined ? gallery : business.gallery;
 

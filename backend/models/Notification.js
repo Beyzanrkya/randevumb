@@ -11,6 +11,10 @@ const notificationSchema = new mongoose.Schema({
     required: true,
     enum: ["Customer", "Business", "BusinessOwner"]
   },
+  businessId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Business"
+  },
   message: {
     type: String,
     required: true

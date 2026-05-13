@@ -31,9 +31,15 @@ const getNotifications = async (req, res) => {
     }
 
     // 3. Veritabanı Sorgusu
-    const notifications = await Notification.find({ 
-      recipientId: new mongoose.Types.ObjectId(userId) 
-    }).sort({ createdAt: -1 }).limit(20);
+    const { businessId } = req.query;
+    let query = { recipientId: new mongoose.Types.ObjectId(userId) };
+    
+    // Eğer dükkan ID'si geldiyse, sadece o dükkanın bildirimlerini getir
+    if (businessId) {
+      query.businessId = new mongoose.Types.ObjectId(businessId);
+    }
+
+    const notifications = await Notification.find(query).sort({ createdAt: -1 }).limit(20);
 
     res.status(200).json(notifications);
   } catch (error) {

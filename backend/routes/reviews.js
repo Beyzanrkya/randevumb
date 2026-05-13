@@ -61,7 +61,8 @@ router.put("/:reviewId", authMiddleware, async (req, res) => {
     if (!review) return res.status(404).json({ message: "Yorum bulunamadı" });
 
     // Sadece yorum sahibi güncelleyebilir
-    if (review.customerId.toString() !== req.user.userId) {
+    const currentUserId = req.user.id || req.user.userId;
+    if (review.customerId.toString() !== currentUserId.toString()) {
       return res.status(403).json({ message: "Bu işlem için yetkiniz yok" });
     }
 
@@ -84,7 +85,8 @@ router.delete("/:reviewId", authMiddleware, async (req, res) => {
     const review = await Review.findById(req.params.reviewId);
     if (!review) return res.status(404).json({ message: "Yorum bulunamadı" });
 
-    if (review.customerId.toString() !== req.user.userId) {
+    const currentUserId = req.user.id || req.user.userId;
+    if (review.customerId.toString() !== currentUserId.toString()) {
       return res.status(403).json({ message: "Bu işlem için yetkiniz yok" });
     }
 

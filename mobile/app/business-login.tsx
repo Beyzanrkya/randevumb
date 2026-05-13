@@ -34,6 +34,9 @@ export default function BusinessLoginScreen() {
       if (response.data.token) {
         await SecureStore.setItemAsync('userToken', response.data.token);
         await SecureStore.setItemAsync('userRole', 'business');
+        if (response.data.owner && response.data.owner._id) {
+          await SecureStore.setItemAsync('ownerId', response.data.owner._id);
+        }
         Alert.alert('Giriş Başarılı', `Hoş geldiniz!`);
         router.push('/business-selection' as any);
       }
